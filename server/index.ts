@@ -1,0 +1,80 @@
+import express, { NextFunction, Request, Response } from "express";
+import cors from "cors";
+import { db } from "./db";
+import { users } from "./db/schema";
+import { middlewareErrors } from "./middleware/middleware_errors";
+import { handlerLogin } from "./handlers/handlerLogin";
+const app = express();
+const port = parseInt(process.env.API_PORT ?? "3001");
+
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:3000" }));
+app.use(express.json());
+app.use(middlewareErrors);
+
+app.get("/health", (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.json({ status: "ok", runtime: "bun", timestamp: new Date().toISOString() });
+  } catch(err) {
+    console.error("Health check error:", err);
+    res.status(500).json({ success: false, error: "Health check error" });
+    next(err);
+  }
+});
+
+app.post("/api/admin/login", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerLogin(req, res);
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ success: false, error: "Admin login error" });
+    next(error);
+  }
+});
+
+app.post("/api/login", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerLogin(req, res);
+  } catch (error) {
+    console.error("User login error:", error);
+    res.status(500).json({ success: false, error: "User login error" });
+    next(error);
+  }
+});
+
+app.post("/api/refresh", async (req: Request, res: Response, next: NextFunction)=> {
+
+})
+
+
+
+//app.get("/users", (_req: Request, res: Response, next: NextFunction) => {
+  //try {
+    //const allUsers = db.select().from(users).all();
+    //res.json({ success: true, count: allUsers.length, users: allUsers });
+  //} catch (error) {
+    //console.error("DB error:", error);
+    //res.status(500).json({ success: false, error: "Database error. Run: bun run db:migrate" });
+    //next(error);
+  //}
+//});
+
+//app.post("/db", (_req: Request, res: Response, next: NextFunction) => {
+  //try {
+    //const [user] = db
+      //.insert(users)
+      //.values({ name: "Test User", email: `test-${Date.now()}@example.com` })
+      //.returning()
+      //.all();
+    //res.json({ success: true, user });
+  //} catch (error) {
+    //console.error("DB error:", error);
+    //res.status(500).json({ success: false, error: "Database error. Run: bun run db:migrate" });
+    //next(error);
+  //}
+//});
+
+
+app.listen(port, () => {
+  console.log(`API server running at http://localhost:${port}`);
+});
+
