@@ -1,7 +1,7 @@
 import { NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError } from "../types/types_error";
 import { Request, Response } from "express";
 
-export const middlewareErrors = (err: Error, req: Request, res: Response) => {
+export const middlewareErrors = (err: Error, req: Request, res: Response, next: NextFunction) => {
     if(err instanceof NotFoundError) {
         return res.status(404).json({ success: false, error: err.message });
     }

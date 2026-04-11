@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
-import { BadRequestError, NotFoundError, UnauthorizedError } from "../types/types_error";
+import { BadRequestError, UnauthorizedError } from "../types/types_error";
 import { getUserAndRoles } from "../db/queries/roles";
-import { User, Role } from "../db/schema";
 import { makeJWT, makeRefreshToken } from "../auth/auth";
+import { userRoles } from "../types/types_roles";
 
 export const handlerLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if(!email || !password) {
-    res.send(400).json({ success: false, error: "Bad Request" });
     throw new BadRequestError("Email and password are required");
   }
   //check endpoint is /api/admin/login or /api/login
@@ -24,17 +23,19 @@ export const handlerLogin = async (req: Request, res: Response) => {
 
   //check if hashed password is correct
   const isMatch = await Bun.password.verify(password, userAndRoles[0].password);
-  //check if user is admin
-  if(userAndRoles[0].role !== "admin" && req.path === "/api/admin/login") {
-    throw new UnauthorizedError("Invalid email or password");
-  }
-  if(userAndRoles[0].role === "user" && req.path !== "/api/login") {
-    throw new UnauthorizedError("Invalid email or password");
-  }
-  if(!isMatch) {
+ if(!isMatch) {
     throw new UnauthorizedError("Invalid email or password");
   }
 
+  //check if user is admin or user and the path they are on is correct for their role
+  if(userAndRoles[0].role !== userRoles.ADMIN && req.path === "/api/admin/login") {
+    throw new UnauthorizedError("Invalid email or password");
+  }
+  if(userAndRoles[0].role === userRoles.USER && req.path !== "/api/login") {
+    throw new UnauthorizedError("Invalid email or password");
+  }
+
+  //make jwt and refresh token
   const jwt = await makeJWT(userAndRoles[0].id, process.env.JWT_SECRET as string);
   const refreshToken = await makeRefreshToken(userAndRoles[0].id);
   res.cookie("refreshToken", refreshToken, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30 });

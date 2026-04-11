@@ -1,7 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
-import { db } from "./db";
-import { users } from "./db/schema";
 import { middlewareErrors } from "./middleware/middleware_errors";
 import { handlerLogin } from "./handlers/handlerLogin";
 const app = express();
@@ -73,6 +71,12 @@ app.post("/api/refresh", async (req: Request, res: Response, next: NextFunction)
   //}
 //});
 
+
+//check if jwt secret is set
+if(!process.env.JWT_SECRET) {
+  console.error("JWT secret is not set");
+  process.exit(1);
+}
 
 app.listen(port, () => {
   console.log(`API server running at http://localhost:${port}`);

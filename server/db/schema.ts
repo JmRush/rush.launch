@@ -37,7 +37,7 @@ export const roles = sqliteTable("roles", {
 });
 
 export const userRoles = sqliteTable("user_roles", {
-  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }).unique(),
   roleId: integer("role_id").references(() => roles.id, { onDelete: "cascade" }),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
