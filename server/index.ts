@@ -7,7 +7,6 @@ const port = parseInt(process.env.API_PORT ?? "3001");
 
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:3000" }));
 app.use(express.json());
-app.use(middlewareErrors);
 
 app.get("/health", (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -44,6 +43,7 @@ app.post("/api/refresh", async (req: Request, res: Response, next: NextFunction)
 })
 
 
+app.use(middlewareErrors);
 
 //app.get("/users", (_req: Request, res: Response, next: NextFunction) => {
   //try {
