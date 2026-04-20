@@ -5,6 +5,16 @@ import { makeJWT, makeRefreshToken } from "../auth/auth";
 import { userRoles } from "../types/types_roles";
 
 export const handlerLogin = async (req: Request, res: Response) => {
+  if(!req.body) {
+    throw new BadRequestError("Request body is required");
+  }
+  if(!req.body.email || !req.body.password) {
+    throw new BadRequestError("Email and password are required");
+  }
+  if(typeof req.body.email !== "string" || typeof req.body.password !== "string") {
+    throw new BadRequestError("Email and password must be strings");
+  }
+
   const { email, password } = req.body;
 
   if(!email || !password) {

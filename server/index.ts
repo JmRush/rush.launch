@@ -33,7 +33,6 @@ app.post("/api/login", async (req: Request, res: Response, next: NextFunction)=>
     await handlerLogin(req, res);
   } catch (error) {
     console.error("User login error:", error);
-    res.status(500).json({ success: false, error: "User login error" });
     next(error);
   }
 });

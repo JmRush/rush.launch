@@ -8,6 +8,13 @@
       "when": 1771626217608,
       "tag": "0000_flowery_sharon_carter",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1776713599765,
+      "tag": "0001_nice_kate_bishop",
+      "breakpoints": true
     }
   ]
 }
