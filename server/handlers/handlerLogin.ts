@@ -38,16 +38,23 @@ export const handlerLogin = async (req: Request, res: Response) => {
   }
 
   //check if user is admin or user and the path they are on is correct for their role
+  if(userAndRoles[0].role === userRoles.ADMIN && req.path !== "/api/admin/login") {
+    throw new UnauthorizedError("Invalid email or password");
+  }
   if(userAndRoles[0].role !== userRoles.ADMIN && req.path === "/api/admin/login") {
     throw new UnauthorizedError("Invalid email or password");
   }
+
   if(userAndRoles[0].role === userRoles.USER && req.path !== "/api/login") {
+    throw new UnauthorizedError("Invalid email or password");
+  }
+  if(userAndRoles[0].role !== userRoles.USER && req.path === "/api/login") {
     throw new UnauthorizedError("Invalid email or password");
   }
 
   //make jwt and refresh token
   const jwt = await makeJWT(userAndRoles[0].id, process.env.JWT_SECRET as string);
   const refreshToken = await makeRefreshToken(userAndRoles[0].id);
-  res.cookie("refreshToken", refreshToken, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30 });
+  res.cookie("refreshToken", refreshToken, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 60 * 24 * 30 });
   res.status(200).json({id: userAndRoles[0].id, email: userAndRoles[0].email, token: jwt, roles: userAndRoles[0].role});
 }

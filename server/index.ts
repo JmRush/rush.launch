@@ -2,10 +2,11 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { middlewareErrors } from "./middleware/middleware_errors";
 import { handlerLogin } from "./handlers/handlerLogin";
+import { middlewareIsAuthenticated } from "./auth/auth";
 const app = express();
 const port = parseInt(process.env.API_PORT ?? "3001");
 
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:3000" }));
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:3000", credentials: true }));
 app.use(express.json());
 
 app.get("/health", (_req: Request, res: Response, next: NextFunction) => {
@@ -41,7 +42,7 @@ app.post("/api/refresh", async (req: Request, res: Response, next: NextFunction)
 
 })
 
-
+app.use(middlewareIsAuthenticated);
 app.use(middlewareErrors);
 
 //app.get("/users", (_req: Request, res: Response, next: NextFunction) => {

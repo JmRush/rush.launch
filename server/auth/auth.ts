@@ -43,7 +43,7 @@ export const makeRefreshToken = async (userId: number) => {
 }
 
 
-export async function middlewareIsAuthenticated(req: Request, res: Response, next: NextFunction) {
+export async function middlewareIsAuthenticated(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const token = getBearerToken(req);
         const userId = await validateJWT(token, process.env.JWT_SECRET as string);

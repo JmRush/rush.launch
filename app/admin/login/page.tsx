@@ -1,5 +1,9 @@
 'use client';
+
+import { useRouter } from "next/navigation";
+
 export default function Login() {
+    const router = useRouter();
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
@@ -10,6 +14,7 @@ export default function Login() {
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials: "include",
             body: JSON.stringify({ email, password }),
         });
         if(!response.ok) {
@@ -17,6 +22,8 @@ export default function Login() {
         }
         const data = await response.json();
         console.log(data);
+        localStorage.setItem("token", data.token);
+        router.push("/admin");
     }
     return (
         <div>

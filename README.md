@@ -1,5 +1,7 @@
 # Rush Launch
 
+## Ai prodcued this documentation, the application was created by me.
+
 Next.js + Bun + TypeScript + SQLite scaffold with recommended file structure.
 
 ## Tech Stack
