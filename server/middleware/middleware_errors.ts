@@ -1,5 +1,5 @@
 import { NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError } from "../types/types_error";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 
 export const middlewareErrors = (err: Error, req: Request, res: Response, next: NextFunction) => {
     if(err instanceof NotFoundError) {
