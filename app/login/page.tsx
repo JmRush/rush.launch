@@ -23,7 +23,7 @@ export default function Login() {
         }
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        router.push("/");
+        router.push("/dashboard");
     }
     return (
         <div>

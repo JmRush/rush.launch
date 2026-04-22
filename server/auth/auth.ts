@@ -50,9 +50,7 @@ export async function middlewareIsAuthenticated(req: Request, res: Response, nex
         if(!userId) {
             throw new UnauthorizedError("Unauthorized");
         }
-        //check if the jwt is expired or if it is not valid via refresh token
-
-
+        //check if user is the user that is trying to access the endpoint
     }catch(error) {
         console.error("Error in middlewareIsAuthenticated:", error);
         if(error instanceof UnauthorizedError) {
