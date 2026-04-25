@@ -9,6 +9,11 @@
 
 
 ## Admin page
+    - Tool to actually add approved containers (start small and expand when people ask)
+        - Minecraft vanilla
+        - Minecraft with mod support
+        - Cs2 servers
+        - Asetto corsa competitizone server
     - User creation
     - Privileged Docker server creation
     - Dashboard
