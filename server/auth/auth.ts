@@ -51,6 +51,7 @@ export async function middlewareIsAuthenticated(req: Request, res: Response, nex
             throw new UnauthorizedError("Unauthorized");
         }
         //check if user is the user that is trying to access the endpoint
+        next();
     }catch(error) {
         console.error("Error in middlewareIsAuthenticated:", error);
         if(error instanceof UnauthorizedError) {
@@ -59,5 +60,4 @@ export async function middlewareIsAuthenticated(req: Request, res: Response, nex
             res.status(500).json({ success: false, error: "Internal server error" });
         }
     }
-    next();
 }

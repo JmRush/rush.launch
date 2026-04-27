@@ -58,15 +58,26 @@ export const serverUsers = sqliteTable("server_users", {
     .notNull(),
 });
 
+export const serverTypes = sqliteTable("server_types", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url").notNull(),
+  dockerImage: text("docker_image").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
 
-export const servers = sqliteTable("servers", {
+export const servers = sqliteTable("active_servers", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   ip: text("ip").notNull(),
   port: integer("port").notNull(),
   name: text("name").notNull(),
-  description: text("description").notNull(),
   status: text("status").notNull(),
-  type: text("type").notNull(),
   createdBy: integer("created_by").references(() => users.id, { onDelete: "set null" }),
   updatedBy: integer("updated_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -75,6 +86,7 @@ export const servers = sqliteTable("servers", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
+  serverTypeId: integer("server_type_id").references(() => serverTypes.id, { onDelete: "cascade" }),
 });
 
 export type User = typeof users.$inferSelect;
