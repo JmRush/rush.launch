@@ -9,8 +9,13 @@ export const addServerType = async (imageData: ImageData) => {
         description: imageData.description,
         imageUrl: imageData.imageURL,
         namespace: imageData.namespace,
-        repository: imageData.repository,
-    });
+        repository: imageData.namespace,
+        pullCount: imageData.pullCount,
+        starCount: imageData.starCount,
+        lastUpdated: new Date(imageData.lastUpdated),
+        storageSize: imageData.storageSize || null,
+        tags: imageData.tags,
+    }).returning({ id: serverTypes.id });
 }
 
 export const getAllServerTypes = async () => {

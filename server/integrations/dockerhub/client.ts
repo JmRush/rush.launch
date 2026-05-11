@@ -35,18 +35,15 @@ export const getProviderToken = async() => {
 
 //get image data from dockerhub API using image URL
 export const fetchImagedata = async (request: Request, response: Response) => {
-    if(!request.body) {
+    if(!request.body || typeof request.body !== "object") {
         throw new BadRequestError("Request body is required");
     }
-    if(!request.body.image_url) {
+    if(!request.body.image_url || typeof request.body.image_url !== "string") {
         throw new BadRequestError("Image URL is required");
     }
-    if(typeof request.body.image_url !== "string") {
-        throw new BadRequestError("Image URL must be a string");
-    }
 
-    if(request.body.host && request.body.host !== "hub.docker.com") {
-        throw new BadRequestError("Host must be hub.docker.com for dockerhub API calls");
+    if(!request.body.host || typeof request.body.host !== "string" || request.body.host !== "hub.docker.com") {
+        throw new BadRequestError("Host is required and must be hub.docker.com for dockerhub API calls");
     }
 
     const providerToken = await getProviderToken();
