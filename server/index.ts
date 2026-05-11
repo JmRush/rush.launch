@@ -3,6 +3,7 @@ import cors from "cors";
 import { middlewareErrors } from "./middleware/middleware_errors";
 import { handlerLogin } from "./handlers/handlerLogin";
 import { middlewareIsAuthenticated } from "./auth/auth";
+import { handlerAddServerType } from "./handlers/handlerAddServerType";
 const app = express();
 const port = parseInt(process.env.API_PORT ?? "3001");
 
@@ -38,9 +39,20 @@ app.post("/api/login", async (req: Request, res: Response, next: NextFunction)=>
   }
 });
 
+app.post("/api/admin/add-server-type", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerAddServerType(req, res);
+  } catch (error) {
+    console.error("Add server type error:", error);
+    next(error);
+  }
+});
+
 app.post("/api/refresh", async (req: Request, res: Response, next: NextFunction)=> {
 
-})
+});
+
+
 
 app.use(middlewareIsAuthenticated);
 app.use(middlewareErrors);

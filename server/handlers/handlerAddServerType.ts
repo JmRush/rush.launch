@@ -3,7 +3,7 @@ import { fetchImagedata } from "../integrations/dockerhub/client";
 import { Request, Response } from "express";
 
 
-export const handlerAddServer = async (req: Request, res: Response) => {
+export const handlerAddServerType = async (req: Request, res: Response) => {
     try {
         const imageData = await fetchImagedata(req, res);
         const serverTypeId = await addServerType(imageData);
