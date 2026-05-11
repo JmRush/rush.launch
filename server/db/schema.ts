@@ -1,4 +1,5 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -63,7 +64,13 @@ export const serverTypes = sqliteTable("server_types", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
-  dockerImage: text("docker_image").notNull(),
+  namespace: text("namespace").notNull(),
+  repository: text("repository").notNull(),
+  tags: text("tags", { mode: "json" }).notNull().$type<string[]>().default(sql`(json_array())`),
+  pullCount: integer("pull_count").notNull(),
+  starCount: integer("star_count").notNull(),
+  lastUpdated: integer("last_updated", { mode: "timestamp" }).notNull(),
+  storageSize: integer("storage_size"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
