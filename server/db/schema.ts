@@ -106,3 +106,5 @@ export type Role = typeof roles.$inferSelect;
 export type NewRole = typeof roles.$inferInsert;
 export type UserRole = typeof userRoles.$inferSelect;
 export type NewUserRole = typeof userRoles.$inferInsert;
+export type ServerType = typeof serverTypes.$inferSelect;
+export type NewServerType = typeof serverTypes.$inferInsert;

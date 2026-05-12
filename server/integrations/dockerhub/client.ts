@@ -1,10 +1,11 @@
 import { BadRequestError } from "@/server/types/types_error";
-import { Request, Response } from "express";
+import { Request} from "express";
 
 export type ImageData = {
     name: string;
     description: string;
     namespace: string;
+    repository: string;
     tags: string[];
     imageURL: string;
     pullCount: number;
@@ -22,7 +23,7 @@ export const getProviderToken = async() => {
         },
         body: JSON.stringify({
             identifier: process.env.DOCKERHUB_USERNAME,
-            secret: process.env.DOCKERHUB_PAT,
+            secret: process.env.DOCKERHUB_PAT
         }),
     });
     if(!response.ok) {
@@ -34,26 +35,29 @@ export const getProviderToken = async() => {
 
 
 //get image data from dockerhub API using image URL
-export const fetchImagedata = async (request: Request, response: Response) => {
+export const fetchImagedata = async (request: Request) => {
     if(!request.body || typeof request.body !== "object") {
         throw new BadRequestError("Request body is required");
     }
     if(!request.body.image_url || typeof request.body.image_url !== "string") {
         throw new BadRequestError("Image URL is required");
     }
-
-    if(!request.body.host || typeof request.body.host !== "string" || request.body.host !== "hub.docker.com") {
-        throw new BadRequestError("Host is required and must be hub.docker.com for dockerhub API calls");
+    //verify that the host of image_url is hub.docker.com
+    if(!request.body.image_url.includes("hub.docker.com")) {
+        throw new BadRequestError("Invalid image URL");
     }
+
 
     const providerToken = await getProviderToken();
     const { namespace, repository } = getNamespaceAndRepositoryFromImageURL(request.body.image_url);
     if(!namespace || !repository) {
         throw new BadRequestError("Invalid image URL");
     }
-
+    //this is the URL to the image on the dockerhub website
     const imageURL = `https://hub.docker.com/r/${namespace}/${repository}`;
-    const imageDataResponse = await fetch(imageURL, {
+    //apiURL is the URL to the image data from the dockerhub API
+    const apiURL = `https://hub.docker.com/v2/namespaces/${namespace}/repositories/${repository}`;
+    const imageDataResponse = await fetch(apiURL, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${providerToken}`,
@@ -75,8 +79,9 @@ export const fetchImagedata = async (request: Request, response: Response) => {
     if(!imageDataResponse.ok) {
         throw new Error("Failed to fetch image data");
     }
-    const data = await imageDataResponse.json();
-    return parseImageData(data, tags, imageURL);
+    const imageData = await imageDataResponse.json();
+    console.log("imageData", imageData);
+    return parseImageData(imageData,repository, tags, apiURL);
 }
 
 
@@ -91,7 +96,7 @@ export const getNamespaceAndRepositoryFromImageURL = (image_url: string) => {
 
 
 //parse image data from dockerhub API response
-export const parseImageData = (imageData: any, imageTags: string[], imageURL: string): ImageData => {
+export const parseImageData = (imageData: any, repository: string, imageTags: string[], apiURL: string): ImageData => {
     if(!imageData.name || typeof imageData.name !== "string") {
         throw new BadRequestError("Name is required");
     }
@@ -101,10 +106,10 @@ export const parseImageData = (imageData: any, imageTags: string[], imageURL: st
     if(!imageData.namespace || typeof imageData.namespace !== "string") {
         throw new BadRequestError("Namespace is required");
     }
-    if(!imageData.repository || typeof imageData.repository !== "string") {
+    if(!repository || typeof repository !== "string") {
         throw new BadRequestError("Repository is required");
     }
-    if(!imageData.tags || !Array.isArray(imageData.tags)) {
+    if(!imageTags || !Array.isArray(imageTags)) {
         throw new BadRequestError("Tags is required and must be an array");
     }
     if(!imageData.pull_count || typeof imageData.pull_count !== "number") {
@@ -116,7 +121,7 @@ export const parseImageData = (imageData: any, imageTags: string[], imageURL: st
     if(!imageData.last_updated || typeof imageData.last_updated !== "string") {
         throw new BadRequestError("Last updated is required and must be a string");
     }
-    if(!imageData.storage_size || typeof imageData.storage_size !== "number" || imageData.storage_size !== null) {
+    if(typeof imageData.storage_size !== "number" && imageData.storage_size !== null) {
         throw new BadRequestError("Storage size is required and must be a number or null");
     }
 
@@ -124,12 +129,13 @@ export const parseImageData = (imageData: any, imageTags: string[], imageURL: st
         name: imageData.name,
         description: imageData.description,
         namespace: imageData.namespace,
+        repository: repository,
         tags: imageTags,
         pullCount: imageData.pull_count,
         starCount: imageData.star_count,
         lastUpdated: imageData.last_updated,
         storageSize: imageData.storage_size,
-        imageURL: imageURL,
+        imageURL: apiURL,
     };
 }
 
