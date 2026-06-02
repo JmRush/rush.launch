@@ -4,6 +4,11 @@ import { middlewareErrors } from "./middleware/middleware_errors";
 import { handlerLogin } from "./handlers/handlerLogin";
 import { middlewareIsAuthenticated } from "./auth/auth";
 import { handlerAddServerType } from "./handlers/handlerAddServerType";
+import { handlerGetServerTypes } from "./handlers/handlerGetServerTypes";
+import { handlerRefresh } from "./handlers/handlerRefresh";
+import { handlerRevoke } from "./handlers/handlerLogout";
+import { handlerWhoAmI } from "./handlers/handlerWhoAmI";
+import { handlerRegister } from "./handlers/handlerRegister";
 const app = express();
 const port = parseInt(process.env.API_PORT ?? "3001");
 
@@ -15,31 +20,13 @@ app.get("/health", (_req: Request, res: Response, next: NextFunction) => {
     res.json({ status: "ok", runtime: "bun", timestamp: new Date().toISOString() });
   } catch(err) {
     console.error("Health check error:", err);
-    res.status(500).json({ success: false, error: "Health check error" });
+    res.status(501).json({ success: false, error: "Health check error" });
     next(err);
   }
 });
 
-app.post("/api/admin/login", async (req: Request, res: Response, next: NextFunction)=> {
-  try {
-    await handlerLogin(req, res);
-  } catch (error) {
-    console.error("Admin login error:", error);
-    res.status(500).json({ success: false, error: "Admin login error" });
-    next(error);
-  }
-});
 
-app.post("/api/login", async (req: Request, res: Response, next: NextFunction)=> {
-  try {
-    await handlerLogin(req, res);
-  } catch (error) {
-    console.error("User login error:", error);
-    next(error);
-  }
-});
-
-app.post("/api/admin/add-server-type", async (req: Request, res: Response, next: NextFunction)=> {
+app.post("/api/admin/add-server-type", middlewareIsAuthenticated, async (req: Request, res: Response, next: NextFunction)=> {
   try {
     await handlerAddServerType(req, res);
   } catch (error) {
@@ -48,40 +35,76 @@ app.post("/api/admin/add-server-type", async (req: Request, res: Response, next:
   }
 });
 
-app.post("/api/refresh", async (req: Request, res: Response, next: NextFunction)=> {
+app.get("/api/get-server-types", middlewareIsAuthenticated, async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerGetServerTypes(req, res);
+  } catch (error) {
+    console.error("Get server types error:", error);
+    next(error);
+  }
+});
 
+//AUTH ROUTES
+app.post("/api/auth/refresh", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerRefresh(req, res);
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    next(error);
+  }
+});
+
+app.post("/api/auth/logout", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerRevoke(req, res);
+  } catch (error) {
+    console.error("Logout error:", error);
+    next(error);
+  }
+});
+
+app.post("/api/auth/admin/login", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerLogin(req, res);
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(501).json({ success: false, error: "Admin login error" });
+    next(error);
+  }
+});
+
+app.post("/api/auth/admin/register", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerRegister(req, res);
+  } catch (error) {
+    console.error("Admin register error:", error);
+    next(error);
+  }
+});
+
+app.post("/api/auth/login", async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerLogin(req, res);
+  } catch (error) {
+    console.error("User login error:", error);
+    next(error);
+  }
+});
+
+
+app.get("/api/auth/whoami", middlewareIsAuthenticated, async (req: Request, res: Response, next: NextFunction)=> {
+  try {
+    await handlerWhoAmI(req, res);
+  } catch (error) {
+    console.error("Whoami error:", error);
+    next(error);
+  }
 });
 
 
 
-app.use(middlewareIsAuthenticated);
+//Catch all middleware
 app.use(middlewareErrors);
-
-//app.get("/users", (_req: Request, res: Response, next: NextFunction) => {
-  //try {
-    //const allUsers = db.select().from(users).all();
-    //res.json({ success: true, count: allUsers.length, users: allUsers });
-  //} catch (error) {
-    //console.error("DB error:", error);
-    //res.status(500).json({ success: false, error: "Database error. Run: bun run db:migrate" });
-    //next(error);
-  //}
-//});
-
-//app.post("/db", (_req: Request, res: Response, next: NextFunction) => {
-  //try {
-    //const [user] = db
-      //.insert(users)
-      //.values({ name: "Test User", email: `test-${Date.now()}@example.com` })
-      //.returning()
-      //.all();
-    //res.json({ success: true, user });
-  //} catch (error) {
-    //console.error("DB error:", error);
-    //res.status(500).json({ success: false, error: "Database error. Run: bun run db:migrate" });
-    //next(error);
-  //}
-//});
 
 
 //check if jwt secret is set

@@ -21,12 +21,12 @@ export const handlerLogin = async (req: Request, res: Response) => {
     throw new BadRequestError("Email and password are required");
   }
   //check endpoint is /api/admin/login or /api/login
-  if(req.path !== "/api/admin/login" && req.path !== "/api/login") {
+  if(req.path !== "/api/auth/admin/login" && req.path !== "/api/auth/login") {
     throw new BadRequestError("Invalid endpoint");
   }
 
   //get user and their role from the database
-  const userAndRoles: {id: number, email: string, password: string, role: string}[] = await getUserAndRoles(email);
+  const userAndRoles: {id: number, name: string, email: string, password: string, role: string}[] = await getUserAndRoles(email);
   if(!userAndRoles || userAndRoles.length === 0) {
     throw new UnauthorizedError("Invalid email or password");
   }
@@ -38,17 +38,17 @@ export const handlerLogin = async (req: Request, res: Response) => {
   }
 
   //check if user is admin or user and the path they are on is correct for their role
-  if(userAndRoles[0].role === userRoles.ADMIN && req.path !== "/api/admin/login") {
+  if(userAndRoles[0].role === userRoles.ADMIN && req.path !== "/api/auth/admin/login") {
     throw new UnauthorizedError("Invalid email or password");
   }
-  if(userAndRoles[0].role !== userRoles.ADMIN && req.path === "/api/admin/login") {
+  if(userAndRoles[0].role !== userRoles.ADMIN && req.path === "/api/auth/admin/login") {
     throw new UnauthorizedError("Invalid email or password");
   }
 
-  if(userAndRoles[0].role === userRoles.USER && req.path !== "/api/login") {
+  if(userAndRoles[0].role === userRoles.USER && req.path !== "/api/auth/login") {
     throw new UnauthorizedError("Invalid email or password");
   }
-  if(userAndRoles[0].role !== userRoles.USER && req.path === "/api/login") {
+  if(userAndRoles[0].role !== userRoles.USER && req.path === "/api/auth/login") {
     throw new UnauthorizedError("Invalid email or password");
   }
 
@@ -56,5 +56,6 @@ export const handlerLogin = async (req: Request, res: Response) => {
   const jwt = await makeJWT(userAndRoles[0].id, process.env.JWT_SECRET as string);
   const refreshToken = await makeRefreshToken(userAndRoles[0].id);
   res.cookie("refreshToken", refreshToken, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 60 * 24 * 30 });
-  res.status(200).json({id: userAndRoles[0].id, email: userAndRoles[0].email, token: jwt, roles: userAndRoles[0].role});
+  res.cookie("token", jwt, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 30 });
+  res.status(200).json({success: true, id: userAndRoles[0].id, name: userAndRoles[0].name, email: userAndRoles[0].email, roles: [userAndRoles[0].role]});
 }

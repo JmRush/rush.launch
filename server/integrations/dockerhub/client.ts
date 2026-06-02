@@ -54,7 +54,7 @@ export const fetchImagedata = async (request: Request) => {
         throw new BadRequestError("Invalid image URL");
     }
     //this is the URL to the image on the dockerhub website
-    const imageURL = `https://hub.docker.com/r/${namespace}/${repository}`;
+    //const imageURL = `https://hub.docker.com/r/${namespace}/${repository}`;
     //apiURL is the URL to the image data from the dockerhub API
     const apiURL = `https://hub.docker.com/v2/namespaces/${namespace}/repositories/${repository}`;
     const imageDataResponse = await fetch(apiURL, {

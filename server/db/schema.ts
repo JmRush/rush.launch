@@ -16,14 +16,14 @@ export const users = sqliteTable("users", {
 
 export const userTokens = sqliteTable("user_tokens", {
   token: text("token").notNull().primaryKey(),
-  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
   updateAt: integer("update_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
-  revokedAt: integer("revoked_at", { mode: "timestamp" }),
+  revokedAt: integer("revoked_at", { mode: "timestamp" }).default(sql`null`),
 });
 
 export const roles = sqliteTable("roles", {

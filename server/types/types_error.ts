@@ -10,6 +10,12 @@ class UnauthorizedError extends Error {
     }
 }
 
+class InvalidTokenError extends UnauthorizedError {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
 class BadRequestError extends Error {
     constructor(message: string) {
         super(message);
@@ -29,4 +35,4 @@ class ForbiddenError extends Error {
 }
 
 
-export { NotFoundError, UnauthorizedError, BadRequestError, InternalServerError, ForbiddenError };
+export { NotFoundError, UnauthorizedError, BadRequestError, InternalServerError, ForbiddenError, InvalidTokenError };

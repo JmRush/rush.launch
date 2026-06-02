@@ -3,8 +3,7 @@ import { UnauthorizedError } from "../types/types_error";
 import { NextFunction, Request, Response } from "express";
 import crypto from "crypto";
 import { insertRefreshToken } from "../db/queries/auth";
-import { userTokens } from "../db/schema";
-import { db } from "../db";
+import { InvalidTokenError } from "../types/types_error";
 
 
 export async function makeJWT(userId: number, secret: string) {
@@ -17,23 +16,30 @@ export async function makeJWT(userId: number, secret: string) {
 }
 
 export async function validateJWT(token: string, secret: string) {
-    const { payload, protectedHeader } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
-    if(!payload.exp || payload.exp < Date.now() / 1000) {
-        throw new UnauthorizedError("Token expired");
+    try {
+        const { payload, protectedHeader } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
+        return payload.userId;
+    } catch(error) {
+        console.error("Error in validateJWT:", error);
+        throw new InvalidTokenError("Invalid token, or token expired");
     }
-    return payload.userId;
 }
 
+//this needs to change as we are using cookies now
 export function getBearerToken(req: Request): string {
-    const authorization = req.headers.authorization;
-    if(!authorization || !authorization.startsWith("Bearer ")) {
-        throw new UnauthorizedError("No authorization header");
+    try {
+        const authorization = req.cookies.token;
+        if(!authorization) {
+            throw new InvalidTokenError("No authorization header");
+        }
+        if(typeof authorization !== "string") {
+            throw new InvalidTokenError("Invalid token type");
+        }
+        return authorization;
+    }catch(error) {
+        console.error("Error in getBearerToken:", error);
+        throw new InvalidTokenError("Unauthorized");
     }
-    const [type, token] = authorization.split(" ");
-    if(type !== "Bearer") {
-        throw new UnauthorizedError("Invalid token type");
-    }
-    return token;
 }
 
 export const makeRefreshToken = async (userId: number) => {
@@ -46,18 +52,20 @@ export const makeRefreshToken = async (userId: number) => {
 export async function middlewareIsAuthenticated(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const token = getBearerToken(req);
+        //validate the token, but how do we know to call refresh?
         const userId = await validateJWT(token, process.env.JWT_SECRET as string);
         if(!userId) {
             throw new UnauthorizedError("Unauthorized");
         }
-        //check if user is the user that is trying to access the endpoint
+        //eventually we're going to have to check the path for 
+        // the user role and if they are allowed to access the path
         next();
     }catch(error) {
         console.error("Error in middlewareIsAuthenticated:", error);
         if(error instanceof UnauthorizedError) {
             res.status(401).json({ success: false, error: error.message });
-        }else {
-            res.status(500).json({ success: false, error: "Internal server error" });
+        } else {
+            next(error);
         }
     }
 }

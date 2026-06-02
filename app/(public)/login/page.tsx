@@ -9,21 +9,19 @@ export default function Login() {
         const formData = new FormData(e.target as HTMLFormElement);
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
-        const response = await fetch("http://localhost:3001/api/admin/login", {
+        const response = await fetch("http://localhost:3001/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "credentials": "include",
             },
-            credentials: "include",
             body: JSON.stringify({ email, password }),
         });
         if(!response.ok) {
             throw new Error("Failed to login");
         }
         const data = await response.json();
-        console.log(data);
-        localStorage.setItem("token", data.token);
-        router.push("/admin/dashboard");
+        router.push("/dashboard");
     }
     return (
         <div>
