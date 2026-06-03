@@ -6,7 +6,7 @@ import { middlewareIsAuthenticated } from "./auth/auth";
 import { handlerAddServerType } from "./handlers/handlerAddServerType";
 import { handlerGetServerTypes } from "./handlers/handlerGetServerTypes";
 import { handlerRefresh } from "./handlers/handlerRefresh";
-import { handlerRevoke } from "./handlers/handlerLogout";
+import { handlerLogout} from "./handlers/handlerLogout";
 import { handlerWhoAmI } from "./handlers/handlerWhoAmI";
 import { handlerRegister } from "./handlers/handlerRegister";
 const app = express();
@@ -56,7 +56,7 @@ app.post("/api/auth/refresh", async (req: Request, res: Response, next: NextFunc
 
 app.post("/api/auth/logout", async (req: Request, res: Response, next: NextFunction)=> {
   try {
-    await handlerRevoke(req, res);
+    await handlerLogout(req, res);
   } catch (error) {
     console.error("Logout error:", error);
     next(error);

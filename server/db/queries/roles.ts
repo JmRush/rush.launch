@@ -21,3 +21,8 @@ export const getUserAndRolesById = async (userId: number) => {
     .where(eq(users.id, userId)).limit(1);
     return userAndRoles;
 }
+
+export const getRoleIdFromName = async (name: string) => {
+    const [roleId] = await db.select({id: roles.id}).from(roles).where(eq(roles.name, name)).limit(1);
+    return roleId;
+}

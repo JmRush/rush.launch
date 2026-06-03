@@ -23,8 +23,6 @@ export const handlerRefresh = async (req: Request, res: Response) => {
         await revokeRefreshToken(userRefreshToken);
         //make a new refresh token
         const newRefreshToken = await makeRefreshToken(dbRefreshToken.userId);
-        //insert the new refresh token into the database
-        await insertRefreshToken(newRefreshToken, dbRefreshToken.userId);
         //set the cookies
         res.cookie("refreshToken", newRefreshToken, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 60 * 24 * 30 });
         res.cookie("token", jwt, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 30 });

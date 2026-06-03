@@ -1,7 +1,7 @@
 "use client";
-import { InternalServerError, UnauthorizedError } from "@/server/types/types_error";
 import { useRouter } from "next/navigation";
 import {createContext, useContext, useEffect, useState, useCallback } from "react";
+import { safeRetry } from "@/lib/global_util";
 
 //create a context object for the auth context
 const AuthContext = createContext<{
@@ -30,46 +30,6 @@ type AuthState = {
 //safe retry for protected routes that require tokens, (refresh)
 
 //if the token is expired, we need to refresh it
-const safeRetry = async (endpoint: string, method: string, count: number, body?: any) => {
-    //fetch endpoint, if we get a 401, we can try the refresh endpoint
-    try {
-        const response = await fetch(endpoint, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            "credentials": "include",
-            body: body ? JSON.stringify(body) : null,
-        })
-
-        if(response.status === 401) {
-            //try to refresh the token
-            const refreshResponse = await fetch("http://localhost:3001/api/auth/refresh", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                "credentials": "include",
-            })
-
-            if(refreshResponse.ok && count < 2) {
-                //retry the original request
-                return await safeRetry(endpoint, method, count+1, body);
-            } else {
-                throw new UnauthorizedError("Unauthorized. Please login again.");
-            }
-        } else {
-            return response;
-        }
-    } catch(error) {
-        console.error("Error in safeRetry:", error);
-        if(error instanceof UnauthorizedError) {
-            throw new UnauthorizedError("Unauthorized. Please login again.");
-        } else {
-            throw new InternalServerError("Internal server error: " + (error as Error).message);
-        }
-    }
-}
 
 //create the provider, which actually holds the states and the logic
 
@@ -86,15 +46,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const whoami = useCallback(async () => {
         try {
             const response = await safeRetry("http://localhost:3001/api/auth/whoami", "GET", 0);
-            if(response.status === 200) {
-                const data = await response.json();
+            if(response instanceof Response && response.ok) {
+                const data: {name: string, email: string, roles: string[]} = await response.json();
                 setAuthState({
                     user: {name: data.name, email: data.email, role: data.roles[0]},
                     isLoggedIn: true,
                     error: null,
                 });
             } else {
-                throw new InternalServerError("Failed to get user data: " + response.statusText);
+                throw new Error("Failed to get user data: " + response.statusText);
             }
         } catch(error) {
             console.error("Error in whoami:", error);
@@ -138,7 +98,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 body: JSON.stringify({ email, password }),
             });
             if(!response.ok) {
-                throw new UnauthorizedError("Invalid email or password");
+                throw new Error("Invalid email or password");
             }
             const data = await response.json();
             setAuthState({
@@ -182,7 +142,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setAuthState({
                 user: null,
                 isLoggedIn: false,
-                error: (error as UnauthorizedError).message,
+                error: (error as Error).message,
             });
         } finally {
             setIsLoading(false);
@@ -192,7 +152,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const register = useCallback(async (name: string, email: string, password: string) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://localhost:3001/api/auth/register", {
+            const response = await fetch("http://localhost:3001/api/auth/admin/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
