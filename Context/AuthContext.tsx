@@ -5,7 +5,7 @@ import { safeRetry } from "@/lib/global_util";
 
 //create a context object for the auth context
 const AuthContext = createContext<{
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, admin: boolean) => Promise<boolean>;
     logout: () => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
     user: {name: string, email: string, role: string} | null;
@@ -13,7 +13,7 @@ const AuthContext = createContext<{
     isLoading: boolean;
     error: string | null;
 }>({
-    login: async () => {},
+    login: async () => {return false;},
     logout: async () => {},
     register: async () => {},
     user: null,
@@ -27,11 +27,6 @@ type AuthState = {
     isLoggedIn: boolean;
     error: string | null;
 }
-//safe retry for protected routes that require tokens, (refresh)
-
-//if the token is expired, we need to refresh it
-
-//create the provider, which actually holds the states and the logic
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
@@ -42,27 +37,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         error: null,
     });
 
-    //call whoami endpoint to get the user data
+
+    //call whoami endpoint to check if the user is logged in, and confirm their data
     const whoami = useCallback(async () => {
         try {
             const response = await safeRetry("http://localhost:3001/api/auth/whoami", "GET", 0);
             if(response instanceof Response && response.ok) {
                 const data: {name: string, email: string, roles: string[]} = await response.json();
-                setAuthState({
-                    user: {name: data.name, email: data.email, role: data.roles[0]},
-                    isLoggedIn: true,
-                    error: null,
-                });
+                setAuthState((prev) => (
+                    {...prev, 
+                        user: {name: data.name, email: data.email, role: data.roles[0]}, 
+                        isLoggedIn: true, 
+                        error: null
+                    }
+                ));
+                return response;
             } else {
                 throw new Error("Failed to get user data: " + response.statusText);
             }
         } catch(error) {
             console.error("Error in whoami:", error);
-            setAuthState({
-                user: null,
-                isLoggedIn: false,
-                error: (error as Error).message,
-            });
+            setAuthState((prev) => ({...prev, user: null, isLoggedIn: false, error: "Failed to get user data" }));
         }
     }, [])
 
@@ -72,10 +67,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const fetchData = async () => {
             try {
                 await whoami();
-                if(authState.error) {
-                    console.error("Auth error:", authState.error);
-                    router.push("/login");
-                }
             } catch(error) {
                 console.error("Error in fetchData:", error);
             } finally {
@@ -86,10 +77,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     },[]);
 
 
-    const login = useCallback(async (email: string, password: string) => {
+    const login = useCallback(async (email: string, password: string, admin: boolean): Promise<boolean> => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://localhost:3001/api/auth/login", {
+            let endpoint = "login";
+            if(admin) {
+                endpoint = "admin/login";
+            }
+            const response = await fetch(`http://localhost:3001/api/auth/${endpoint}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -100,19 +95,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if(!response.ok) {
                 throw new Error("Invalid email or password");
             }
-            const data = await response.json();
-            setAuthState({
-                user: {name: data.name, email: data.email, role: data.roles[0]},
-                isLoggedIn: true,
-                error: null,
-            });
+            await whoami();
+            return true;
         } catch(error) {
             console.error("Error in login:", error);
-            setAuthState({
-                user: null,
-                isLoggedIn: false,
-                error: (error as Error).message,
-            });
+            setAuthState((prev) => ({...prev, user: null, isLoggedIn: false, error: "Invalid email or password" }));
+            return false;
         } finally {
             setIsLoading(false);
         }
@@ -121,7 +109,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const logout = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response = await fetch("http://localhost:3001/api/auth/logout", {
+            const response = await fetch("http://localhost:3001/api/auth/refresh/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -131,19 +119,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if(!response.ok) {
                 throw new Error("Failed to logout");
             }
-            setAuthState({
-                user: null,
-                isLoggedIn: false,
-                error: null,
-            });
+            setAuthState((prev) => ({...prev, user: null, isLoggedIn: false, error: null}));
             router.push("/login");
         } catch(error) {
             console.error("Error in logout:", error);
-            setAuthState({
-                user: null,
-                isLoggedIn: false,
-                error: (error as Error).message,
-            });
+            setAuthState((prev) => ({...prev, user: null, isLoggedIn: false, error: "Failed to logout" }));
         } finally {
             setIsLoading(false);
         }
@@ -163,24 +143,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if(!response.ok) {
                 throw new Error("Failed to register");
             }
-            //if the response is ok, we need to set the auth state
-            const data = await response.json();
-            if(data.success) {
-                setAuthState({
-                    user: {name: data.name, email: data.email, role: data.roles[0]},
-                    isLoggedIn: true,
-                    error: null,
-                });
-            } else {
-                throw new Error("Failed to register");
-            }
+            await whoami();
         } catch(error) {
             console.error("Error in register:", error);
-            setAuthState({
-                user: null,
-                isLoggedIn: false,
-                error: (error as Error).message,
-            });
+            setAuthState((prev) => ({...prev, user: null, isLoggedIn: false, error: "Failed to register user" }));
         } finally {
             setIsLoading(false);
         }
@@ -195,3 +161,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuth = () => {
     return useContext(AuthContext);
 }
+
+//export const useAuthRedirect =  () => {
+    //const { isLoggedIn, isLoading, error } = useAuth();
+    //const router = useRouter();
+    //if(!isLoggedIn && !isLoading) {
+        //router.push("/login");
+    //}
+//}

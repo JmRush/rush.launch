@@ -9,11 +9,13 @@ import { handlerRefresh } from "./handlers/handlerRefresh";
 import { handlerLogout} from "./handlers/handlerLogout";
 import { handlerWhoAmI } from "./handlers/handlerWhoAmI";
 import { handlerRegister } from "./handlers/handlerRegister";
+const cookieParser = require("cookie-parser");
 const app = express();
 const port = parseInt(process.env.API_PORT ?? "3001");
 
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:3000", credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/health", (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -54,7 +56,7 @@ app.post("/api/auth/refresh", async (req: Request, res: Response, next: NextFunc
   }
 });
 
-app.post("/api/auth/logout", async (req: Request, res: Response, next: NextFunction)=> {
+app.post("/api/auth/refresh/logout", async (req: Request, res: Response, next: NextFunction)=> {
   try {
     await handlerLogout(req, res);
   } catch (error) {
@@ -73,7 +75,7 @@ app.post("/api/auth/admin/login", async (req: Request, res: Response, next: Next
   }
 });
 
-app.post("/api/auth/admin/register", async (req: Request, res: Response, next: NextFunction)=> {
+app.post("/api/auth/admin/register", middlewareIsAuthenticated, async (req: Request, res: Response, next: NextFunction)=> {
   try {
     await handlerRegister(req, res);
   } catch (error) {

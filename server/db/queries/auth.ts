@@ -14,6 +14,11 @@ export const getRefreshToken = async (token: string) => {
     return result;
 }
 
+export const getRefreshTokenById = async (userId: number) => {
+    const [result] = await db.select().from(userTokens).where(eq(userTokens.userId, userId)).limit(1);
+    return result;
+}
+
 export const revokeRefreshToken = async (token: string) => {
     await db.update(userTokens).set({ revokedAt: new Date()}).where(eq(userTokens.token, token));
 }

@@ -1,23 +1,19 @@
 import { Request, Response } from "express";
 import { UnauthorizedError } from "../types/types_error";
-import { getRefreshToken } from "../db/queries/auth";
+import { getRefreshTokenById } from "../db/queries/auth";
 import { getUserAndRolesById } from "../db/queries/roles";
+import { getBearerToken, validateJWT } from "../auth/auth";
 
 export const handlerWhoAmI = async (req: Request, res: Response) => {
     try {
         //get the user and their role from the database based off of the refresh token?
-        const userRefreshToken = req.cookies.refreshToken;
-        if(!userRefreshToken) {
-            throw new UnauthorizedError("No refresh token provided");
+        const token = getBearerToken(req);
+        const userId = await validateJWT(token, process.env.JWT_SECRET as string);
+        if(!userId) {
+            throw new UnauthorizedError("Invalid access token, or token expired");
         }
-        const refreshTokenRow = await getRefreshToken(userRefreshToken);
-        if(!refreshTokenRow) {
-            throw new UnauthorizedError("Invalid refresh token");
-        }
-        if(refreshTokenRow.revokedAt !== null) {
-            throw new UnauthorizedError("Refresh token revoked");
-        }
-        const userAndRoles = await getUserAndRolesById(refreshTokenRow.userId);
+
+        const userAndRoles = await getUserAndRolesById(userId as number);
         if(!userAndRoles || userAndRoles.length === 0) {
             throw new UnauthorizedError("User not found");
         }

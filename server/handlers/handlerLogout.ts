@@ -10,8 +10,8 @@ export const handlerLogout = async (req: Request, res: Response) => {
             await revokeRefreshToken(refreshToken);
         }
         //clear the cookies
-        res.cookie("refreshToken", "", {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 0 });
-        res.cookie("token", "", {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 0 });
+        res.cookie("refreshToken", "", {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 0, path: "/api/auth/refresh"});
+        res.cookie("token", "", {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 0});
         res.status(200).json({success: true, message: "Logged out successfully"});
     } catch(error) {
         console.error("Error in handlerRevoke:", error);

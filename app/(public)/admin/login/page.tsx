@@ -1,29 +1,27 @@
 'use client';
 
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/Context/AuthContext";
 
 export default function Login() {
     const router = useRouter();
+    const { login} = useAuth();
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
-        const response = await fetch("http://localhost:3001/api/admin/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "credentials": "include",
-            },
-            body: JSON.stringify({ email, password }),
-        });
-        if(!response.ok) {
-            throw new Error("Failed to login");
+        try {
+            const result = await login(email, password, true);
+            //login should update the auth context, so we can check if the user is logged in
+            if(result) {
+                router.push("/admin/dashboard");
+            } else {
+                throw new Error("Failed to login");
+            }
+        } catch(error) {
+            console.error("Error in login:", error);
         }
-        const data = await response.json();
-        console.log(data);
-        localStorage.setItem("token", data.token);
-        router.push("/admin/dashboard");
     }
     return (
         <div>

@@ -31,23 +31,6 @@
 
 
 
-Last working on:
-
-- Auth context provider (front-end)
-- Auth error handling (redirect based on invalid token -> relogin)
-- Storing server data types 
-- Front-end design
-
-Want to complete:
-- (post) Create server handler
-- (get) active server data handler
-- RBA on paths (currently not implemented) - thinking of several methods (not sure yet)
-
-
-
-
-
-
 
 # Flows
 
@@ -110,3 +93,7 @@ Want to complete:
 
 ## Useful links for me
 https://docs.docker.com/reference/api/engine/version/v1.52/#tag/Container/operation/ContainerInspect
+
+
+## Current issues:
+

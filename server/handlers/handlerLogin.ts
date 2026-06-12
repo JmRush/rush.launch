@@ -55,7 +55,7 @@ export const handlerLogin = async (req: Request, res: Response) => {
   //make jwt and refresh token
   const jwt = await makeJWT(userAndRoles[0].id, process.env.JWT_SECRET as string);
   const refreshToken = await makeRefreshToken(userAndRoles[0].id);
-  res.cookie("refreshToken", refreshToken, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 60 * 24 * 30 });
+  res.cookie("refreshToken", refreshToken, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 60 * 24 * 30, path: "/api/auth/refresh"});
   res.cookie("token", jwt, {sameSite: "strict", httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 1000 * 60 * 30 });
   res.status(200).json({success: true, id: userAndRoles[0].id, name: userAndRoles[0].name, email: userAndRoles[0].email, roles: [userAndRoles[0].role]});
 }
