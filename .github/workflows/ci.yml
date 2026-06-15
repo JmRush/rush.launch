@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  CI workflow:
+  ci_workflow:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
