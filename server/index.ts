@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { middlewareErrors } from "./middleware/middleware_errors";
 import { handlerLogin } from "./handlers/handlerLogin";
-import { middlewareIsAuthenticated } from "./auth/auth";
+import { middlewareIsAuthenticated } from "./middleware/middleware_isAuthenticated";
 import { handlerAddServerType } from "./handlers/handlerAddServerType";
 import { handlerGetServerTypes } from "./handlers/handlerGetServerTypes";
 import { handlerRefresh } from "./handlers/handlerRefresh";

@@ -1,4 +1,4 @@
-import { ServerType } from "@/server/db/schema";
+import { ServerType } from "@/types/api";
 
 export default function CarouselItem({ serverType }: { serverType: ServerType }) {
     //get data from props passed in, and display a card with the data passed in - game, name, description, image, and a button to launch the container

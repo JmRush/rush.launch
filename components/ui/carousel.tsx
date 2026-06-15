@@ -12,6 +12,3 @@ export default function Carousel({ serverTypes }: { serverTypes: ServerType[] })
         </div>
     );
 }
-//when I come back, a question that I need to have answered is, do these server components have access to AuthContext, and are they affected by it?
-//if im calling the db directly from the server component, im not verifying the person on the server side because we are bypassing the endpoint in the api
-//should I call the handler instead of the db directly? or should I just move to client side components for the most part?
