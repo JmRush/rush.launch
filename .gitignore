@@ -15,9 +15,6 @@ server/data/*.db-journal
 *.db
 *.db-journal
 server/drizzle/meta/*.json
-server/drizzle/migrations/*.json
-server/drizzle/*
-server/drizzle/*.sql
 
 
 
