@@ -28,17 +28,17 @@ export default function AdminDashboard() {
 
     return (
         <div>
-            /*navbar - on admin dashboard, show logout button and register user button*/
 
             <h1>Admin Dashboard</h1>
             <p>Welcome to the admin dashboard</p>
 
+            {/*navbar - on admin dashboard, show logout button and register user button*/
             /*this is the carousel of server types - all of these shoudl be collapsable sections*/
+            /*some component that shows all the active servers*/
+            /*some component that shows the overall stats of the servers*/}
             <Carousel serverTypes={serverTypes} />
 
-            /*some component that shows all the active servers*/
 
-            /*some component that shows the overall stats of the servers*/
 
 
         </div>
