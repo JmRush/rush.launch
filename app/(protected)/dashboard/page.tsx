@@ -24,11 +24,15 @@ export default function Dashboard() {
     const [serverTypes, setServerTypes] = useState<ServerType[]>([]);
     useEffect(() => {
         const fetchServerTypes = async () => {
-            const serverTypes = await getServerTypes();
-            setServerTypes(serverTypes);
+            try {
+                const serverTypes = await getServerTypes();
+                setServerTypes(serverTypes);
+            } catch(error) {
+                throw new Error((error as Error).message);
+            }
         }
         fetchServerTypes();
-    }, [setServerTypes]);
+    }, []);
     return (
         <div>
             <h1>Dashboard</h1>

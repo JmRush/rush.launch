@@ -25,8 +25,12 @@ export default function AdminDashboard() {
     const [serverTypes, setServerTypes] = useState<ServerType[]>([]);
     useEffect(() => {
         const fetchServerTypes = async () => {
-            const serverTypes = await getServerTypes();
-            setServerTypes(serverTypes);
+            try {
+                const serverTypes = await getServerTypes();
+                setServerTypes(serverTypes);
+            } catch(error) {
+                throw new Error((error as Error).message);
+            }
         }
         fetchServerTypes();
     }, []);
