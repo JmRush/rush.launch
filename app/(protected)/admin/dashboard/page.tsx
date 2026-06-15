@@ -1,28 +1,46 @@
+"use client";
 import Carousel from "@/components/ui/carousel";
-import { getAllServerTypes } from "@/server/db/queries/serverTypes";
-import { ServerType} from "@/server/db/schema";
-import { InternalServerError } from "@/server/types/types_error";
+import { safeRetry } from "@/lib/global_util";
+import { ServerType} from "@/types/api";
+import { useEffect, useState } from "react";
 
-export default async function AdminDashboard() {
-    const getServerTypes = async () => {
-        try {
-            const serverTypes: ServerType[] = await getAllServerTypes();
-            if(!serverTypes) {
-                throw new Error("No server types found");
-            }
-            return serverTypes;
-        } catch(error) {
-            throw new InternalServerError((error as Error).message);
+const getServerTypes = async () => {
+    try {
+        const serverTypes: ServerType[] = await safeRetry("http://localhost:3001/api/server-types", "GET", 0);
+        if(!serverTypes) {
+            throw new Error("No server types found");
         }
-
+        return serverTypes;
+    } catch(error) {
+        throw new Error((error as Error).message);
     }
-    const serverTypes = await getServerTypes();
+}
+
+export default function AdminDashboard() {
+    const [serverTypes, setServerTypes] = useState<ServerType[]>([]);
+    useEffect(() => {
+        const fetchServerTypes = async () => {
+            const serverTypes = await getServerTypes();
+            setServerTypes(serverTypes);
+        }
+        fetchServerTypes();
+    }, []);
 
     return (
         <div>
+            /*navbar - on admin dashboard, show logout button and register user button*/
+
             <h1>Admin Dashboard</h1>
             <p>Welcome to the admin dashboard</p>
+
+            /*this is the carousel of server types - all of these shoudl be collapsable sections*/
             <Carousel serverTypes={serverTypes} />
+
+            /*some component that shows all the active servers*/
+
+            /*some component that shows the overall stats of the servers*/
+
+
         </div>
     );
 }

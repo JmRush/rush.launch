@@ -1,7 +1,9 @@
+"use client";
 import CarouselItem from "./carousel_item";
-import { ServerType } from "@/server/db/schema";
+import { ServerType } from "@/types/api";
 
-export default function Carousel( {serverTypes}: {serverTypes: ServerType[]} ) {
+
+export default function Carousel({ serverTypes }: { serverTypes: ServerType[] }) {
     return (
         <div>
             {serverTypes && serverTypes.length> 0 ? serverTypes.map((serverType: ServerType) => {

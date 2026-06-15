@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { getBearerToken } from "../auth/auth";
 import { NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError, InternalServerError, InvalidTokenError } from "../types/types_error";
 import { Request, Response, NextFunction } from "express";
 

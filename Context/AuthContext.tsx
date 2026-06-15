@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } catch(error) {
             console.error("Error in whoami:", error);
             setAuthState((prev) => ({...prev, user: null, isLoggedIn: false, error: "Failed to get user data" }));
+            router.push("/login");
         }
     }, [])
 
@@ -162,10 +163,15 @@ export const useAuth = () => {
     return useContext(AuthContext);
 }
 
-//export const useAuthRedirect =  () => {
-    //const { isLoggedIn, isLoading, error } = useAuth();
-    //const router = useRouter();
-    //if(!isLoggedIn && !isLoading) {
-        //router.push("/login");
-    //}
-//}
+export const useAuthRedirect =  () => {
+    const { isLoggedIn, isLoading} = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if(!isLoggedIn && !isLoading) {
+            router.push("/login");
+        }
+    }, [isLoggedIn, isLoading, router]);
+
+    return { isLoggedIn, isLoading };
+}

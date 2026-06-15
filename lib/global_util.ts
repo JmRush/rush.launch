@@ -38,6 +38,7 @@ export const safeRetry = async (endpoint: string, method: string, count: number,
         } else if(response.ok) {
             return response;
         } else {
+            //redirect to login page
             throw new Error("Failed to get user data: " + response.statusText);
         }
     } catch(error) {
