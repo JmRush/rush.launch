@@ -6,11 +6,15 @@ import { useEffect, useState } from "react";
 
 const getServerTypes = async () => {
     try {
-        const serverTypes: ServerType[] = await safeRetry("http://localhost:3001/api/server-types", "GET", 0);
-        if(!serverTypes) {
-            throw new Error("No server types found");
+        const response = await safeRetry("http://localhost:3001/api/get-server-types", "GET", 0);
+        if(!(response instanceof Response) || !response.ok) {
+            throw new Error("Failed to get server types");
         }
-        return serverTypes;
+        const data = await response.json();
+        if(!data.success) {
+            throw new Error(data.error);
+        }
+        return data.serverTypes as ServerType[];
     } catch(error) {
         throw new Error((error as Error).message);
     }
@@ -24,7 +28,7 @@ export default function Dashboard() {
             setServerTypes(serverTypes);
         }
         fetchServerTypes();
-    }, []);
+    }, [setServerTypes]);
     return (
         <div>
             <h1>Dashboard</h1>

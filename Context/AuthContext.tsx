@@ -58,7 +58,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } catch(error) {
             console.error("Error in whoami:", error);
             setAuthState((prev) => ({...prev, user: null, isLoggedIn: false, error: "Failed to get user data" }));
-            router.push("/login");
         }
     }, [])
 
