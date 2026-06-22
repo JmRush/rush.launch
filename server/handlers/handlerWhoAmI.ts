@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { UnauthorizedError } from "../types/types_error";
-import { getRefreshTokenById } from "../db/queries/auth";
 import { getUserAndRolesById } from "../db/queries/roles";
 import { getBearerToken, validateJWT } from "../auth/auth";
 
@@ -17,19 +16,17 @@ export const handlerWhoAmI = async (req: Request, res: Response) => {
     if (!userAndRoles || userAndRoles.length === 0) {
       throw new UnauthorizedError("User not found");
     }
-    res
-      .status(200)
-      .json({
-        name: userAndRoles[0].name,
-        email: userAndRoles[0].email,
-        roles: [userAndRoles[0].role],
-      });
+    res.status(200).json({
+      name: userAndRoles[0].name,
+      email: userAndRoles[0].email,
+      roles: [userAndRoles[0].role],
+    });
   } catch (error) {
     console.error("Error in handlerWhoAmI:", error);
     if (error instanceof UnauthorizedError) {
-      res.status(401).json({ success: false, error: error.message });
+      throw new UnauthorizedError((error as Error).message);
     } else {
-      res.status(500).json({ success: false, error: "Internal server error" });
+      throw new Error((error as Error).message);
     }
   }
 };
