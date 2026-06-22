@@ -41,15 +41,17 @@
 
 ## Useful links for me
 
-https://docs.docker.com/reference/api/engine/version/v1.52/#tag/Container/operation/ContainerInspect
+<https://docs.docker.com/reference/api/engine/version/v1.52/#tag/Container/operation/ContainerInspect>
 
-## Current issues:
+## Current issues
 
-RBA is not setup yet (admin route protection backend) - RBA failure is 403 (forbidden)
-API baseURL config - AuthContext, global_util, dashboard fetches - lib/api.ts -> fallback to localhost if ...
+RBA is not setup yet (admin route protection backend) - RBA failure is 403 (forbidden) -> I think I did this? - VERIFY this is correct
 
-fallback in middeware_errors
-
-route based redirect on redirectUseAuth (usePathname)
+API baseURL config
+AuthContext,
+global_util,
+dashboard fetches - lib/api.ts -> fallback to localhost if ...
 
 Server error handling - throw error vs respond directly - decide
+
+fallback in middeware_errors

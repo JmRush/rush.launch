@@ -15,6 +15,8 @@ export async function middlewareIsAuthenticated(
       token,
       process.env.JWT_SECRET as string,
     )) as number;
+
+
     if (!userId) {
       throw new UnauthorizedError("Unauthorized");
     }
@@ -29,6 +31,7 @@ export async function middlewareIsAuthenticated(
     if (userAndRole.role === "user" && req.path.includes("/admin/")) {
       throw new ForbiddenError("User does not have access to this path");
     }
+    //nothing has gone wrong, continue on the lifecycle of the request next();
 
     next();
   } catch (error) {
