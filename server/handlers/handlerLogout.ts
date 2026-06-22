@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UnauthorizedError, InternalServerError } from "../types/types_error";
-import { getRefreshToken, revokeRefreshToken } from "../db/queries/auth";
+import { revokeRefreshToken } from "../db/queries/auth";
 
 export const handlerLogout = async (req: Request, res: Response) => {
   try {
@@ -25,11 +25,11 @@ export const handlerLogout = async (req: Request, res: Response) => {
     });
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.error("Error in handlerRevoke:", error);
+    console.error("Error in handlerLogout:", error);
     if (error instanceof UnauthorizedError) {
-      res.status(401).json({ success: false, error: error.message });
+      throw new UnauthorizedError((error as Error).message);
     } else {
-      res.status(500).json({ success: false, error: "Internal server error" });
+      throw new InternalServerError((error as Error).message);
     }
   }
 };
