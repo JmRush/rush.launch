@@ -12,12 +12,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="en">
-        <body className="antialiased">
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </body>
-      </html>
+    <html lang="en">
+      <body className="antialiased">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
+    </html>
   );
 }

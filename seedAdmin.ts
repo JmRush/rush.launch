@@ -5,7 +5,11 @@ import { eq } from "drizzle-orm";
 const email = process.env.ADMIN_EMAIL ?? "admin@example.com";
 const plainPassword = process.env.ADMIN_PASSWORD ?? "admin";
 
-const [existingRole] = await db.select().from(roles).where(eq(roles.name, "admin")).limit(1);
+const [existingRole] = await db
+  .select()
+  .from(roles)
+  .where(eq(roles.name, "admin"))
+  .limit(1);
 const adminRole =
   existingRole ??
   (await db.insert(roles).values({ name: "admin" }).returning())[0];

@@ -1,8 +1,7 @@
 # Rush Launch
+
 ![ci status svg](https://github.com/JmRush/rush.launch/actions/workflows/ci.yml/badge.svg)
 ![cd status svg](https://github.com/JmRush/rush.launch/actions/workflows/cd.yml/badge.svg)
-
-
 
 ## Ai prodcued this documentation, the application was created by me.
 
@@ -50,11 +49,13 @@ bun install
 ### Initialize database
 
 **Option A – Push schema (quick for dev):**
+
 ```bash
 bun run db:push
 ```
 
 **Option B – Migrations (for production):**
+
 ```bash
 bun run db:generate   # Generate migrations from schema
 bun run db:migrate    # Apply migrations
@@ -67,6 +68,7 @@ bun run dev
 ```
 
 Starts both:
+
 - **Next.js** at [http://localhost:3000](http://localhost:3000)
 - **API server** at [http://localhost:3001](http://localhost:3001)
 
@@ -81,15 +83,16 @@ bun run start
 
 ## Database Commands
 
-| Command | Description |
-|---------|-------------|
+| Command               | Description                     |
+| --------------------- | ------------------------------- |
 | `bun run db:generate` | Generate migrations from schema |
-| `bun run db:migrate` | Apply migrations |
-| `bun run db:studio` | Open Drizzle Studio (DB GUI) |
+| `bun run db:migrate`  | Apply migrations                |
+| `bun run db:studio`   | Open Drizzle Studio (DB GUI)    |
 
 ## Environment
 
 Copy `.env.example` to `.env`. Options:
+
 - `DATABASE_URL` – SQLite path (default: `server/data/sqlite.db`)
 - `API_PORT` – API server port (default: `3001`)
 - `CORS_ORIGIN` – Allowed origin for API (default: `http://localhost:3000`)

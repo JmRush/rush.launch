@@ -1,29 +1,44 @@
 import { Request, Response, NextFunction } from "express";
-import { UnauthorizedError } from "../types/types_error";
+import { ForbiddenError, UnauthorizedError } from "../types/types_error";
 import { getBearerToken, validateJWT } from "../auth/auth";
+import { getUserAndRolesById } from "../db/queries/roles";
 
-export async function middlewareIsAuthenticated(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const token = getBearerToken(req);
-        //validate the token, but how do we know to call refresh?
-        const userId = await validateJWT(token, process.env.JWT_SECRET as string);
-        if(!userId) {
-            throw new UnauthorizedError("Unauthorized");
-        }
-
-        //get user's role from the db, and check if they are allowed to access the path
-
-
-        //if they are not allowed, throw an unauthorized error and redirect to opposite dashboard page, if they are allowed, continue, otherwise our auth handles this
-
-
-        next();
-    }catch(error) {
-        console.error("Error in middlewareIsAuthenticated:", error);
-        if(error instanceof UnauthorizedError) {
-            res.status(401).json({ success: false, error: error.message });
-        } else {
-            next(error);
-        }
+export async function middlewareIsAuthenticated(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const token = getBearerToken(req);
+    //validate the token, but how do we know to call refresh?
+    const userId: number = (await validateJWT(
+      token,
+      process.env.JWT_SECRET as string,
+    )) as number;
+    if (!userId) {
+      throw new UnauthorizedError("Unauthorized");
     }
+
+    //get user's role from the db, and check if they are allowed to access the path
+    const userAndRole = (await getUserAndRolesById(userId))[0];
+    if (!userAndRole) {
+      throw new UnauthorizedError("Issue getting user's role");
+    }
+
+    //do we care if admin can access the normal dashboard? probably not
+    if (userAndRole.role === "user" && req.path.includes("/admin/")) {
+      throw new ForbiddenError("User does not have access to this path");
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error in middlewareIsAuthenticated:", error);
+    if (error instanceof UnauthorizedError) {
+      throw new UnauthorizedError("Issue verifying user.");
+    } else if (error instanceof ForbiddenError) {
+      throw new ForbiddenError("User does not have access to these resources");
+    } else {
+      next(error);
+    }
+  }
 }

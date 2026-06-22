@@ -1,44 +1,46 @@
 {
-    "name": "rush-launch",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "concurrently \"bun run dev:next\" \"bun run dev:api\"",
-        "dev:next": "bun --bun next dev --turbopack",
-        "dev:api": "bun run server/index.ts",
-        "api": "bun run server/index.ts",
-        "build": "bun --bun next build",
-        "start": "concurrently \"bun --bun next start\" \"bun run server/index.ts\"",
-        "lint": "next lint",
-        "db:generate": "drizzle-kit generate --config server/drizzle.config.ts",
-        "db:migrate": "bun run server/migrate.ts",
-        "db:push": "drizzle-kit push --config server/drizzle.config.ts",
-        "db:studio": "drizzle-kit studio --config server/drizzle.config.ts"
-    },
-    "dependencies": {
-        "cookie-parser": "^1.4.7",
-        "cors": "^2.8.6",
-        "drizzle-orm": "^0.36.0",
-        "express": "^5.2.1",
-        "jose": "^6.1.3",
-        "next": "^15.0.0",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0"
-    },
-    "devDependencies": {
-        "@eslint/eslintrc": "^3.0.0",
-        "@types/bun": "^1.3.9",
-        "@types/cors": "^2.8.19",
-        "@types/express": "^5.0.6",
-        "@types/node": "^22.0.0",
-        "@types/react": "^19.0.0",
-        "@types/react-dom": "^19.0.0",
-        "concurrently": "^9.2.1",
-        "drizzle-kit": "^0.28.0",
-        "eslint": "^9.0.0",
-        "eslint-config-next": "^15.0.0",
-        "postcss": "^8.4.0",
-        "tailwindcss": "^3.4.0",
-        "typescript": "^5.0.0"
-    }
+  "name": "rush-launch",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"bun run dev:next\" \"bun run dev:api\"",
+    "dev:next": "bun --bun next dev --turbopack",
+    "dev:api": "bun run server/index.ts",
+    "api": "bun run server/index.ts",
+    "build": "bun --bun next build",
+    "start": "concurrently \"bun --bun next start\" \"bun run server/index.ts\"",
+    "lint": "next lint",
+    "prettier": "bunx prettier --write .",
+    "db:generate": "drizzle-kit generate --config server/drizzle.config.ts",
+    "db:migrate": "bun run server/migrate.ts",
+    "db:push": "drizzle-kit push --config server/drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config server/drizzle.config.ts"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "drizzle-orm": "^0.36.0",
+    "express": "^5.2.1",
+    "jose": "^6.1.3",
+    "next": "^15.0.0",
+    "prettier": "^3.8.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.0.0",
+    "@types/bun": "^1.3.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "concurrently": "^9.2.1",
+    "drizzle-kit": "^0.28.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.0.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.0.0"
+  }
 }

@@ -1,7 +1,8 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname} from "next/navigation";
 import {createContext, useContext, useEffect, useState, useCallback } from "react";
 import { safeRetry } from "@/lib/global_util";
+import { roles }from "../types/api.ts"
 
 //create a context object for the auth context
 const AuthContext = createContext<{
@@ -21,6 +22,7 @@ const AuthContext = createContext<{
     isLoading: true,
     error: null,
 })
+
 
 type AuthState = {
     user: {name: string, email: string, role: string} | null;
@@ -162,16 +164,24 @@ export const useAuth = () => {
     return useContext(AuthContext);
 }
 
+function isOnAdminPath() {
+  const pathname = usePathname();
+  if(pathname.includes("admin")) return true;
+  return false;
+}
+
+
 export const useAuthRedirect =  () => {
-    const { isLoggedIn, isLoading} = useAuth();
-    const router = useRouter();
-    //we want to redirect to the login page if the user is not logged in, but also verify that the path is correct for their role
+  const {isLoggedIn, isLoading, user} = useAuth();
+  const router = useRouter();
+  useEffect(() => { 
+    if(!isLoggedIn && !isLoading) {
+        router.push("/login");
+    } else if(isLoggedIn && !loading) {
+      //verify user is on correct path, if user is on admin path, redirect to user dash
+    }
 
-    useEffect(() => {
-        if(!isLoggedIn && !isLoading) {
-            router.push("/login");
-        }
-    }, [isLoggedIn, isLoading, router]);
+  }, [isLoggedIn, isLoading, router, user]);
 
-    return { isLoggedIn, isLoading };
+  return { isLoggedIn, isLoading, user};
 }
