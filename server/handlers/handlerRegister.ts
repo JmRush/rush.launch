@@ -3,7 +3,6 @@ import {
   BadRequestError,
   ForbiddenError,
   InternalServerError,
-  UnauthorizedError,
 } from "../types/types_error";
 import { makeJWT, makeRefreshToken } from "../auth/auth";
 import { getRoleIdFromName } from "../db/queries/roles";
@@ -71,23 +70,21 @@ export const handlerRegister = async (req: Request, res: Response) => {
     });
 
     //return success
-    res
-      .status(200)
-      .json({
-        success: true,
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        roles: ["user"],
-      });
+    res.status(200).json({
+      success: true,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      roles: ["user"],
+    });
   } catch (error) {
     console.error("Error in handlerRegister:", error);
     if (error instanceof BadRequestError) {
-      res.status(400).json({ success: false, error: error.message });
+      throw new BadRequestError((error as Error).message);
     } else if (error instanceof ForbiddenError) {
-      res.status(403).json({ success: false, error: error.message });
+      throw new ForbiddenError((error as Error).message);
     } else {
-      res.status(500).json({ success: false, error: "Internal server error" });
+      throw new Error((error as Error).message);
     }
   }
 };
