@@ -1,23 +1,7 @@
 import { Request, Response } from "express";
-import {
-  BadRequestError,
-  NotFoundError,
-  UnauthorizedError,
-  InvalidTokenError,
-  InternalServerError,
-} from "../types/types_error";
-import {
-  getRefreshToken,
-  insertRefreshToken,
-  revokeRefreshToken,
-} from "../db/queries/auth";
-import {
-  getBearerToken,
-  makeJWT,
-  makeRefreshToken,
-  validateJWT,
-} from "../auth/auth";
-import next from "next";
+import { UnauthorizedError, InternalServerError } from "../types/types_error";
+import { getRefreshToken, revokeRefreshToken } from "../db/queries/auth";
+import { makeJWT, makeRefreshToken } from "../auth/auth";
 
 export const handlerRefresh = async (req: Request, res: Response) => {
   try {
