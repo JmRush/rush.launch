@@ -45,13 +45,22 @@
 
 ## Current issues
 
-RBA is not setup yet (admin route protection backend) - RBA failure is 403 (forbidden) -> I think I did this? - VERIFY this is correct
+### Auth
 
-API baseURL config
-AuthContext,
-global_util,
-dashboard fetches - lib/api.ts -> fallback to localhost if ...
+- RBA is not setup yet (admin route protection backend) - RBA failure is 403 (forbidden) -> I think I did this? - VERIFY this is correct
 
-Server error handling - throw error vs respond directly - decide
+### Config updates
 
-fallback in middeware_errors
+- API baseURL config
+  - AuthContext,
+  - global_util,
+  - dashboard fetches - lib/api.ts -> fallback to localhost if ...
+
+### Error handling
+
+- Server error handling - throw error vs respond directly - decide
+- fallback in middeware_errors
+
+### Create container endpoint
+
+### Create container logic -> Docker engine API to spawn, get stats etc
