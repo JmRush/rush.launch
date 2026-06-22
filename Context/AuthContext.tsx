@@ -165,6 +165,7 @@ export const useAuth = () => {
 export const useAuthRedirect =  () => {
     const { isLoggedIn, isLoading} = useAuth();
     const router = useRouter();
+    //we want to redirect to the login page if the user is not logged in, but also verify that the path is correct for their role
 
     useEffect(() => {
         if(!isLoggedIn && !isLoading) {

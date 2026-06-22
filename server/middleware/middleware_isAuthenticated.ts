@@ -10,8 +10,13 @@ export async function middlewareIsAuthenticated(req: Request, res: Response, nex
         if(!userId) {
             throw new UnauthorizedError("Unauthorized");
         }
-        //eventually we're going to have to check the path for 
-        // the user role and if they are allowed to access the path
+
+        //get user's role from the db, and check if they are allowed to access the path
+
+
+        //if they are not allowed, throw an unauthorized error and redirect to opposite dashboard page, if they are allowed, continue, otherwise our auth handles this
+
+
         next();
     }catch(error) {
         console.error("Error in middlewareIsAuthenticated:", error);

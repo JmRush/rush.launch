@@ -30,45 +30,6 @@
 
 
 
-
-
-# Flows
-
-## Auth flow - Goal
-- Public login page calls useAuth/Login
-- login hits server handlerLogin
-- Server validates user from auth query
-- Refresh token stored in db
-- We send back a jwt token, and a refresh
-- Protected layout checks if a user is logged in, and stores the data for dynamic display reasons
-
-
-## Current Auth flow (mess)
-
-- User gets login page (public)
-- User inputs email and password
-- Server calls handlerLogin which verifies pass/email
-- If valid, we create a JWT/Refresh token
-- We store refresh token in db
-- we send back both tokens
-- If invalid, we do nothing
-
-- If user tries to acccess a page that is not correct or an API endpoint that is not accessible to them (unauth)
-- we redirect them back to login
-- Otherwise we send them the requested data.
-
-## Auth is missing 
-- Refresh token implementation
-- front end auth context
-- logout -> invalidate refresh token -> remove tokens from cookies???? - we must do research on what happens when we press logout.
-
-## Questions about auth 
-
-- How do we know when to check if a token is expired?
-- ANS: if auth fails inside our context, and we do have a refreshtoken, hit the refresh endpoint, verify that the JWTUSERID = userID stored with the refreshToken
-
-
-
 ## Create server flow
 - User is shown several pre-approved containers
 - User selects a container to launch
@@ -81,19 +42,19 @@
 
 
 
-## Dashboard flow
-- GET SERVER TYPES
-- GET MY SERVERS
-
-## Admin dashboard flow
-- GET SERVER TYPES
-- GET ALL ACTIVE SERVERS
-
-
-
 ## Useful links for me
 https://docs.docker.com/reference/api/engine/version/v1.52/#tag/Container/operation/ContainerInspect
 
 
 ## Current issues:
+
+RBA is not setup yet (admin route protection backend) - RBA failure is 403 (forbidden)
+API baseURL config - AuthContext, global_util, dashboard fetches - lib/api.ts -> fallback to localhost if ...
+
+fallback in middeware_errors 
+
+route based redirect on redirectUseAuth (usePathname)
+
+Server error handling - throw error vs respond directly - decide
+
 
