@@ -48,6 +48,7 @@
 ### Auth
 
 - RBA is not setup yet (admin route protection backend) - RBA failure is 403 (forbidden) -> I think I did this? - VERIFY this is correct
+- Verify complete
 
 ### Config updates
 
@@ -58,8 +59,8 @@
 
 ### Error handling
 
-- Server error handling - throw error vs respond directly - decide
-- fallback in middeware_errors
+- Server error handling - throw error vs respond directly - decide - Done
+- fallback in middeware_errors - done
 
 ### Create container endpoint
 

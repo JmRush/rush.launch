@@ -9,6 +9,8 @@ import { handlerRefresh } from "./handlers/handlerRefresh";
 import { handlerLogout } from "./handlers/handlerLogout";
 import { handlerWhoAmI } from "./handlers/handlerWhoAmI";
 import { handlerRegister } from "./handlers/handlerRegister";
+import { handlerCreateServer } from "./handlers/handlerCreateServer";
+
 const cookieParser = require("cookie-parser");
 const app = express();
 const port = parseInt(process.env.API_PORT ?? "3001");
@@ -21,20 +23,6 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-
-app.get("/health", (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.json({
-      status: "ok",
-      runtime: "bun",
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.error("Health check error:", err);
-    res.status(501).json({ success: false, error: "Health check error" });
-    next(err);
-  }
-});
 
 app.post(
   "/api/admin/add-server-type",
@@ -57,6 +45,19 @@ app.get(
       await handlerGetServerTypes(req, res);
     } catch (error) {
       console.error("Get server types error:", error);
+      next(error);
+    }
+  },
+);
+
+app.get(
+  "/api/create-server",
+  middlewareIsAuthenticated,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await handlerCreateServer(req, res);
+    } catch (error) {
+      console.error("Create-server error");
       next(error);
     }
   },
