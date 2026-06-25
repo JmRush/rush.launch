@@ -1,6 +1,6 @@
 import { serverTypes } from "../schema";
 import { db } from "..";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import type { ImageData } from "@/server/integrations/dockerhub/client";
 
 export const addServerType = async (imageData: ImageData) => {
@@ -26,4 +26,11 @@ export const getAllServerTypes = async () => {
     .select()
     .from(serverTypes)
     .orderBy(desc(serverTypes.createdAt));
+};
+
+export const getServerTypeById = async (id: string) => {
+  return await db
+    .select()
+    .from(serverTypes)
+    .where(eq(serverTypes.id, parseInt(id)));
 };

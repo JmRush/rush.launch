@@ -95,7 +95,6 @@ app.post(
       await handlerLogin(req, res);
     } catch (error) {
       console.error("Admin login error:", error);
-      res.status(501).json({ success: false, error: "Admin login error" });
       next(error);
     }
   },
