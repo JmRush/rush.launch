@@ -12,8 +12,6 @@ export const addServerType = async (imageData: ImageData) => {
       imageUrl: imageData.imageURL,
       namespace: imageData.namespace,
       repository: imageData.repository,
-      pullCount: imageData.pullCount,
-      starCount: imageData.starCount,
       lastUpdated: new Date(imageData.lastUpdated),
       storageSize: imageData.storageSize || null,
       tags: imageData.tags,

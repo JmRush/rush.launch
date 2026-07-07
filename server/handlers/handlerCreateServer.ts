@@ -3,29 +3,29 @@ import { Request, Response } from "express";
 import { getServerTypeById } from "../db/queries/serverTypes";
 import { pullDockerImage } from "../integrations/dockerengine/client";
 
-//This create server will be done for the users role, and admins that dont want anything special. There will be an admin path that allows custom commands/builds, (this will probably require a worker);
-export async function handlerCreateServer(req: Request, res: Response) {
-  //process selected server, match it to a server type
-  if (!req.body) {
-    throw new BadRequestError("Error, not a valid request");
-  }
-
-  let { serverTypeID, serverTag } = req.body;
-  if (!serverTypeID) {
-    throw new BadRequestError("Error, not a valid request");
-  }
-
+export const handlerCreateServer = async (req: Request, res: Response) => {
   try {
-    //verify servertype sent exists in our db, and the given tag also exists in our db
-    const serverType = (await getServerTypeById(serverTypeID))[0];
-    if (!serverType || !serverType.repository || !serverType.namespace) {
-      throw new Error("Malformed data from db");
+    if (!req.body) {
+      throw new BadRequestError("Error, not a valid request");
     }
-    const tag = serverType.tags.includes(serverTag) ? serverTag : "latest";
-    //if it does exist and our tag is included in the tag array in our db, we use the supplied tag, otherwise we go default "latest" so we don't pull every image from dockerhub of that repo
+
+    let { serverTypeID, serverTypeTag } = req.body;
+    if (!serverTypeID) {
+      throw new BadRequestError("Error, not a valid request");
+    }
+
+    //get server type and information (ports/vols); NOT COMPLETED YET - WARNING
+    const serverType = (await getServerTypeById(serverTypeID))[0];
+
+    const tag = serverType.tags.includes(serverTypeTag)
+      ? serverTypeTag
+      : "latest";
+
     await pullDockerImage(serverType.namespace, serverType.repository, tag);
+
+    //to run we need to know (1 the run command, 2 resource limitations, 3 port assignment, 4 volume allocation (if required));
   } catch (error) {
-    console.error("Issue getting server type of id: " + serverTypeID);
+    console.error("Issue getting server type in handlerCreateServer");
     throw new Error((error as Error).message);
   }
 
@@ -45,4 +45,4 @@ export async function handlerCreateServer(req: Request, res: Response) {
 
   //pass server creation data to worker
   //worker handles connection to Docker engine API, creation of server, and finally a response or retries for server creation
-}
+};

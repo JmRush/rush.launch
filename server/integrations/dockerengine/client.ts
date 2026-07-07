@@ -1,36 +1,62 @@
-import http, { IncomingMessage } from "http";
+import {
+  BadRequestError,
+  InternalServerError,
+} from "@/server/types/types_error";
 
-export async function pullDockerImage(
-  repo: string,
-  image: string,
+export const pullDockerImage = async (
+  namespace: string,
+  repository: string,
   tag: string,
-) {
+) => {
   try {
-    await getImageReq(repo, image, tag);
-  } catch (err) {
-    throw new Error("Issue pulling docker image: " + (err as Error).message);
+    if (!namespace || !repository) {
+      throw new BadRequestError("No namespace or repository found");
+    }
+    if (!process.env.SOCKET_PATH) {
+      throw new InternalServerError("No socket found, cannot create container");
+    }
+    await fetchDockerImage(namespace, repository, tag);
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+};
+
+async function fetchDockerImage(
+  namespace: string,
+  repository: string,
+  tag: string,
+): Promise<void> {
+  try {
+    const response = await fetch(
+      `http://localhost/images/create?fromImage=${namespace}/${repository}&tag=${tag}`,
+      {
+        unix: process.env.SOCKET_PATH,
+        method: "POST",
+      },
+    );
+    if (!response || !response.ok) {
+      throw new InternalServerError("Issue querying socket");
+    }
+    const reader = response.body!.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      console.log(new TextDecoder().decode(value));
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error((error as Error).message);
   }
 }
 
-async function getImageReq(repo: string, image: string, tag: string) {
-  const SOCKET_PATH = process.env.SOCKET_PATH;
+export const createContainer = async () => {};
 
-  const fromImg = `${repo}/${image}:${tag}`;
+async function fetchCreateContainer() {}
 
-  const options = {
-    socketPath: SOCKET_PATH,
-    path: `/v1.54/images/create?fromImage=${encodeURIComponent(fromImg)}`,
-    method: "POST",
-  };
+//Decide resource limitations
 
-  const req = http.request(options, (res: IncomingMessage) => {
-    let body = "";
-    res.on("data", (chunk: Buffer) => {
-      body += chunk;
-    });
-    res.on("end", () => {
-      console.log(body);
-    });
-  });
-  req.end();
-}
+//Mostly ram and cpu
+
+//Decide on port config, and how we can ensure no conflict

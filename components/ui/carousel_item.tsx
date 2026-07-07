@@ -22,12 +22,6 @@ export default function CarouselItem({
         </h1>
         <p className="text-sm text-gray-500">{serverType.description}</p>
         <p className="text-sm text-gray-500">
-          Pull Count: {serverType.pullCount}
-        </p>
-        <p className="text-sm text-gray-500">
-          Star Count: {serverType.starCount}
-        </p>
-        <p className="text-sm text-gray-500">
           Last Updated: {new Date(serverType.lastUpdated).toISOString()}
         </p>
         <p className="text-sm text-gray-500">

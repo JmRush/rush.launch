@@ -1,5 +1,7 @@
 import { BadRequestError } from "@/server/types/types_error";
+import { env } from "../../schema/env.schema";
 import { Request } from "express";
+import { CreateServerTypeSchema } from "@/server/schema/servertype.schema";
 
 export type ImageData = {
   name: string;
@@ -8,13 +10,24 @@ export type ImageData = {
   repository: string;
   tags: string[];
   imageURL: string;
-  pullCount: number;
-  starCount: number;
-  lastUpdated: string;
+  lastUpdated: Date;
   storageSize: number | null;
 };
 
-//Not required for getting image data, but required for other dockerhub API calls
+type Volume = {
+  container_path: string;
+  label: string;
+  serverTypeId: number;
+};
+
+type Port = {
+  label: string;
+  protocol: string;
+  container_port: number;
+  serverTypeId: number;
+};
+
+//Not required for getting image data, but required for other dockerhub API calls or private containers
 export const getProviderToken = async () => {
   const response = await fetch("https://hub.docker.com/v2/auth/token", {
     method: "POST",
@@ -22,8 +35,8 @@ export const getProviderToken = async () => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      identifier: process.env.DOCKERHUB_USERNAME,
-      secret: process.env.DOCKERHUB_PAT,
+      identifier: env.DOCKERHUB_USERNAME,
+      secret: env.DOCKERHUB_PAT,
     }),
   });
   if (!response.ok) {
@@ -35,15 +48,20 @@ export const getProviderToken = async () => {
 
 //get image data from dockerhub API using image URL
 export const fetchImagedata = async (request: Request) => {
-  if (!request.body || typeof request.body !== "object") {
-    throw new BadRequestError("Request body is required");
-  }
   if (!request.body.image_url || typeof request.body.image_url !== "string") {
     throw new BadRequestError("Image URL is required");
   }
   //verify that the host of image_url is hub.docker.com
   if (!request.body.image_url.includes("hub.docker.com")) {
     throw new BadRequestError("Invalid image URL");
+  }
+
+  //port data should be [{name string, protocol string, port number, label string, serverTypeId}]
+  const ports = request.body.ports;
+  //volumes data should be label, path, serverTypeId
+  let volumes = request.body.volumes;
+  if (!volumes || volumes.length == 0) {
+    volumes = [{ container_path: "/data", label: "default" }];
   }
 
   const providerToken = await getProviderToken();
@@ -83,8 +101,7 @@ export const fetchImagedata = async (request: Request) => {
     throw new Error("Failed to fetch image data");
   }
   const imageData = await imageDataResponse.json();
-  console.log("imageData", imageData);
-  return parseImageData(imageData, repository, tags, apiURL);
+  return parseImageData(imageData, repository, tags, apiURL, volumes, ports);
 };
 
 //helper function to get namespace and repository from image_url
@@ -102,51 +119,20 @@ export const parseImageData = (
   repository: string,
   imageTags: string[],
   apiURL: string,
-): ImageData => {
-  if (!imageData.name || typeof imageData.name !== "string") {
-    throw new BadRequestError("Name is required");
-  }
-  if (!imageData.description || typeof imageData.description !== "string") {
-    throw new BadRequestError("Description is required");
-  }
-  if (!imageData.namespace || typeof imageData.namespace !== "string") {
-    throw new BadRequestError("Namespace is required");
-  }
-  if (!repository || typeof repository !== "string") {
-    throw new BadRequestError("Repository is required");
-  }
-  if (!imageTags || !Array.isArray(imageTags)) {
-    throw new BadRequestError("Tags is required and must be an array");
-  }
-  if (!imageData.pull_count || typeof imageData.pull_count !== "number") {
-    throw new BadRequestError("Pull count is required and must be a number");
-  }
-  if (!imageData.star_count || typeof imageData.star_count !== "number") {
-    throw new BadRequestError("Star count is required and must be a number");
-  }
-  if (!imageData.last_updated || typeof imageData.last_updated !== "string") {
-    throw new BadRequestError("Last updated is required and must be a string");
-  }
-  if (
-    typeof imageData.storage_size !== "number" &&
-    imageData.storage_size !== null
-  ) {
-    throw new BadRequestError(
-      "Storage size is required and must be a number or null",
-    );
-  }
+  volumes: Volume[],
+  ports: Port[],
+) => {
+  imageData.apiURL = apiURL;
+  imageData.storage_size = imageData.storage_size || null;
+  imageData.tags = imageTags;
+  imageData.repository = repository;
+
+  const parsedImageData = CreateServerTypeSchema.parse(imageData);
 
   return {
-    name: imageData.name,
-    description: imageData.description,
-    namespace: imageData.namespace,
-    repository: repository,
-    tags: imageTags,
-    pullCount: imageData.pull_count,
-    starCount: imageData.star_count,
-    lastUpdated: imageData.last_updated,
-    storageSize: imageData.storage_size,
-    imageURL: apiURL,
+    imageData: parsedImageData,
+    ports: ports,
+    volumes: volumes,
   };
 };
 

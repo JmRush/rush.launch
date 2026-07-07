@@ -10,14 +10,15 @@ import { handlerLogout } from "./handlers/handlerLogout";
 import { handlerWhoAmI } from "./handlers/handlerWhoAmI";
 import { handlerRegister } from "./handlers/handlerRegister";
 import { handlerCreateServer } from "./handlers/handlerCreateServer";
+import { env } from "../server/schema/env.schema";
 
 const cookieParser = require("cookie-parser");
 const app = express();
-const port = parseInt(process.env.API_PORT ?? "3001");
+const port = parseInt(env.API_PORT ?? "3001");
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+    origin: env.CORS_ORIGIN ?? "http://localhost:3000",
     credentials: true,
   }),
 );
@@ -142,7 +143,7 @@ app.get(
 app.use(middlewareErrors);
 
 //check if jwt secret is set
-if (!process.env.JWT_SECRET) {
+if (!env.JWT_SECRET) {
   console.error("JWT secret is not set");
   process.exit(1);
 }

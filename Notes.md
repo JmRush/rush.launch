@@ -39,29 +39,21 @@
   - launching the server is genuinely a giant step in of itself
   - ASSUMING everything succeeds(safety checks), we should pull the container
 
-## Useful links for me
-
-<https://docs.docker.com/reference/api/engine/version/v1.52/#tag/Container/operation/ContainerInspect>
-
-## Current issues
-
-### Auth
-
-- RBA is not setup yet (admin route protection backend) - RBA failure is 403 (forbidden) -> I think I did this? - VERIFY this is correct
-- Verify complete
-
-### Config updates
-
 - API baseURL config
   - AuthContext,
   - global_util,
   - dashboard fetches - lib/api.ts -> fallback to localhost if ...
 
-### Error handling
+## Create a container/server
 
-- Server error handling - throw error vs respond directly - decide - Done
-- fallback in middeware_errors - done
+- Check if allowed, and server type exists inside out db
+- Pull image, if this works, yippie step 1 is done;
+- Create image, this requires a lot of information and limits
+  - ports, port assignment, port usage is different for every game server
+  - volume mounting and determining the amount of space/if a volume is required
+  -
 
-### Create container endpoint
+## Pull image data (dockerhub)
 
-### Create container logic -> Docker engine API to spawn, get stats etc
+- Currently for pulling image data, we're just passing in a imageURL and pulling all necessary data
+- This will need to be modified for user input (port requriements)/(storage/mounting) reqs
