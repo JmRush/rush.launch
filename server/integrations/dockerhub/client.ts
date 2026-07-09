@@ -56,20 +56,20 @@ export const fetchImagedata = async (request: Request) => {
     throw new BadRequestError("Invalid image URL");
   }
 
-  //port data should be [{name string, protocol string, port number, label string, serverTypeId}]
-  const ports = request.body.ports;
-  //volumes data should be label, path, serverTypeId
-  let volumes = request.body.volumes;
-  if (!volumes || volumes.length == 0) {
-    volumes = [{ container_path: "/data", label: "default" }];
-  }
-
   const providerToken = await getProviderToken();
   const { namespace, repository } = getNamespaceAndRepositoryFromImageURL(
     request.body.image_url,
   );
   if (!namespace || !repository) {
     throw new BadRequestError("Invalid image URL");
+  }
+
+  //port data should be [{name string, protocol string, port number, label string, serverTypeId}]
+  const ports = request.body.ports;
+  //volumes data should be label, path, serverTypeId
+  let volumes = request.body.volumes;
+  if (!volumes || volumes.length == 0) {
+    volumes = [{ container_path: `/data`, label: "default" }];
   }
   //this is the URL to the image on the dockerhub website
   //const imageURL = `https://hub.docker.com/r/${namespace}/${repository}`;

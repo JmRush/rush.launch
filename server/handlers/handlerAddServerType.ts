@@ -34,7 +34,6 @@ export const handlerAddServerType = async (req: Request, res: Response) => {
           serverTypeId: inserted.id,
         });
       });
-
       const validatedVolumes = volumes.map((volume) => {
         return CreateContainerVolume.parse({
           ...volume,

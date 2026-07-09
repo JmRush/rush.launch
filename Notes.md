@@ -32,9 +32,9 @@
 
 - User is shown several pre-approved containers
 - User selects a container to launch
-- This posts some information on the container to the backend
+- This posts some information on the container to the backend ("some information was doing the heavy lifting here...")
 - Verify that the user CAN launch this server
-- Verify that the server can be launched (memory avail and cpu avail)
+- Verify that the server can be launched (memory avail and cpu avail), this should be interesting
 - if both of these pass, launch the server
   - launching the server is genuinely a giant step in of itself
   - ASSUMING everything succeeds(safety checks), we should pull the container
@@ -48,12 +48,13 @@
 
 - Check if allowed, and server type exists inside out db
 - Pull image, if this works, yippie step 1 is done;
+
 - Create image, this requires a lot of information and limits
   - ports, port assignment, port usage is different for every game server
   - volume mounting and determining the amount of space/if a volume is required
   -
 
-## Pull image data (dockerhub)
+## Later work
 
-- Currently for pulling image data, we're just passing in a imageURL and pulling all necessary data
-- This will need to be modified for user input (port requriements)/(storage/mounting) reqs
+- Refactor queries and db to use relations instead of joins
+- Refactor backend code to utilize zod in all incoming data points

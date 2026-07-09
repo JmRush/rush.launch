@@ -107,7 +107,8 @@ export const serverTypeVolumes = sqliteTable("server_type_volumes", {
 //ACTIVE SERVER INFO - PORTS,VOLS,ETC
 /////////////////////////////////////
 export const servers = sqliteTable("active_servers", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }).notNull(), //this will be the container id after container creation is confirmed successful
+  containerId: text("container_id").notNull(),
   ip: text("ip").notNull(),
   name: text("name").notNull(),
   status: text("status").notNull(),
@@ -125,6 +126,9 @@ export const servers = sqliteTable("active_servers", {
     })
     .notNull(),
 });
+//group servers by type when displaying active_servers
+//"Minecraft" - 1 active minecraft server
+//"Factorio" - Currently no active servers
 
 export const serversPorts = sqliteTable(
   "active_servers_ports",

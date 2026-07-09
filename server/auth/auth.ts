@@ -1,5 +1,4 @@
 import * as jose from "jose";
-import { UnauthorizedError } from "../types/types_error";
 import { NextFunction, Request, Response } from "express";
 import crypto from "crypto";
 import { insertRefreshToken } from "../db/queries/auth";

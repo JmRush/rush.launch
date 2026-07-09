@@ -32,3 +32,11 @@ export const getServerTypeById = async (id: string) => {
     .from(serverTypes)
     .where(eq(serverTypes.id, parseInt(id)));
 };
+
+//using relations we can return an object in the shape of {..serverTypeInfo, ports[], volumes[]}
+export const getServerTypeAndMappingsById = async (serverTypeId: number) => {
+  return await db.query.serverTypes.findFirst({
+    where: eq(serverTypes.id, serverTypeId),
+    with: { ports: true, volumes: true },
+  });
+};

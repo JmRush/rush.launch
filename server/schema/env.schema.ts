@@ -9,6 +9,7 @@ const EnvSchema = z.object({
   DOCKERHUB_USERNAME: z.string(),
   SOCKET_PATH: z.string(),
   NODE_ENV: z.enum(["development", "production", "test"]),
+  MAIN_HOST: z.ipv4(),
 });
 
 export const env = EnvSchema.parse(process.env);
