@@ -25,6 +25,7 @@ export const handlerAddServerType = async (req: Request, res: Response) => {
           tags: imageData.tags,
           lastUpdated: new Date(imageData.lastUpdated),
           storageSize: imageData.storageSize,
+          cpuShares: imageData.cpuShares,
         })
         .returning();
 
@@ -58,6 +59,7 @@ export const handlerAddServerType = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true, id: result.id });
   } catch (error) {
-    throw new InternalServerError((error as Error).message);
+    console.error(error);
+    throw error;
   }
 };

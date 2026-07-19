@@ -16,6 +16,7 @@ export const handlerWhoAmI = async (req: Request, res: Response) => {
     if (!userAndRoles || userAndRoles.length === 0) {
       throw new UnauthorizedError("User not found");
     }
+
     res.status(200).json({
       name: userAndRoles[0].name,
       email: userAndRoles[0].email,
@@ -23,10 +24,5 @@ export const handlerWhoAmI = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error in handlerWhoAmI:", error);
-    if (error instanceof UnauthorizedError) {
-      throw new UnauthorizedError((error as Error).message);
-    } else {
-      throw new Error((error as Error).message);
-    }
-  }
+    throw error;
 };

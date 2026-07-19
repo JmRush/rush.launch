@@ -105,6 +105,6 @@ export const handlerLogin = async (req: Request, res: Response) => {
     });
   } catch (error) {
     //throw an error
-    throw new UnauthorizedError("Invalid email or password");
+    throw error;
   }
 };

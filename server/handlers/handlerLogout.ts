@@ -26,10 +26,5 @@ export const handlerLogout = async (req: Request, res: Response) => {
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     console.error("Error in handlerLogout:", error);
-    if (error instanceof UnauthorizedError) {
-      throw new UnauthorizedError((error as Error).message);
-    } else {
-      throw new InternalServerError((error as Error).message);
-    }
-  }
+    throw error;
 };

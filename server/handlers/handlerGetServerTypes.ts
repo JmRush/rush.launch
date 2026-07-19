@@ -10,6 +10,7 @@ export const handlerGetServerTypes = async (req: Request, res: Response) => {
     }
     res.status(200).json({ success: true, serverTypes: serverTypes });
   } catch (error) {
-    throw new InternalServerError((error as Error).message);
+    console.error(error);
+    throw error;
   }
 };

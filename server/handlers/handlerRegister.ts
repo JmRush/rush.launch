@@ -79,12 +79,5 @@ export const handlerRegister = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error in handlerRegister:", error);
-    if (error instanceof BadRequestError) {
-      throw new BadRequestError((error as Error).message);
-    } else if (error instanceof ForbiddenError) {
-      throw new ForbiddenError((error as Error).message);
-    } else {
-      throw new Error((error as Error).message);
-    }
-  }
+    throw error;
 };

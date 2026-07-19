@@ -42,15 +42,5 @@ export const handlerRefresh = async (req: Request, res: Response) => {
     res.status(200).json({ success: true, message: "Token refreshed" });
   } catch (error) {
     console.error("Error in handlerRefresh:", error);
-    if (error instanceof UnauthorizedError) {
-      throw new UnauthorizedError(
-        "Unauthorized in refresh token handler: " + error.message,
-      );
-    } else {
-      throw new InternalServerError(
-        "Internal server error in refresh token handler: " +
-          (error as Error).message,
-      );
-    }
-  }
+    throw error;
 };

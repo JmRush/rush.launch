@@ -33,7 +33,7 @@ export const handlerCreateServer = async (req: Request, res: Response) => {
       await getServerTypeAndMappingsById(serverTypeID);
 
     if (!serverTypeAndMappings) {
-      throw new InternalServerError(
+      throw new BadRequestError(
         "Issue getting server template and port/volume mappings",
       );
     }
@@ -46,7 +46,7 @@ export const handlerCreateServer = async (req: Request, res: Response) => {
     const token = getBearerToken(req);
     const userId = await validateJWT(token, env.JWT_SECRET);
     if (!userId || typeof userId != "number") {
-      throw new UnauthorizedError("Issue verifying user.");
+      throw new UnauthorizedError("Issue verifying user");
     }
 
     //create server before this, get return id, if successful insert into db via this object
@@ -88,6 +88,6 @@ export const handlerCreateServer = async (req: Request, res: Response) => {
     res.status(200).json({});
   } catch (error) {
     console.error("Issue getting server type in handlerCreateServer");
-    throw new Error((error as Error).message);
+    throw error;
   }
 

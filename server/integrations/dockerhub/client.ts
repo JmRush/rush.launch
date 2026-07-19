@@ -12,6 +12,7 @@ export type ImageData = {
   imageURL: string;
   lastUpdated: Date;
   storageSize: number | null;
+  cpuShares: number;
 };
 
 type Volume = {
@@ -40,7 +41,7 @@ export const getProviderToken = async () => {
     }),
   });
   if (!response.ok) {
-    throw new Error("Failed to get provider token");
+    throw new BadRequestError("Failed to get provider token");
   }
   const data = await response.json();
   return data.access_token;
@@ -48,7 +49,11 @@ export const getProviderToken = async () => {
 
 //get image data from dockerhub API using image URL
 export const fetchImagedata = async (request: Request) => {
-  if (!request.body.image_url || typeof request.body.image_url !== "string") {
+  if (
+    !request.body.image_url ||
+    typeof request.body.image_url !== "string" ||
+    !request.body.cpuShares
+  ) {
     throw new BadRequestError("Image URL is required");
   }
   //verify that the host of image_url is hub.docker.com
@@ -93,15 +98,23 @@ export const fetchImagedata = async (request: Request) => {
   );
 
   if (!imageTagsResponse.ok) {
-    throw new Error("Failed to fetch image tags");
+    throw new BadRequestError("Failed to fetch image tags");
   }
   const imageTagsData = await imageTagsResponse.json();
   const tags = imageTagsData.results.map((tag: any) => tag.name);
   if (!imageDataResponse.ok) {
-    throw new Error("Failed to fetch image data");
+    throw new BadRequestError("Failed to fetch image data");
   }
   const imageData = await imageDataResponse.json();
-  return parseImageData(imageData, repository, tags, apiURL, volumes, ports);
+  return parseImageData(
+    imageData,
+    repository,
+    tags,
+    apiURL,
+    volumes,
+    ports,
+    cpuShares,
+  );
 };
 
 //helper function to get namespace and repository from image_url
@@ -121,11 +134,13 @@ export const parseImageData = (
   apiURL: string,
   volumes: Volume[],
   ports: Port[],
+  cpuShares: number,
 ) => {
   imageData.apiURL = apiURL;
   imageData.storage_size = imageData.storage_size || null;
   imageData.tags = imageTags;
   imageData.repository = repository;
+  imageData.cpuShares = cpuShares;
 
   const parsedImageData = CreateServerTypeSchema.parse(imageData);
 
