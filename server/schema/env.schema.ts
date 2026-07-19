@@ -10,6 +10,14 @@ const EnvSchema = z.object({
   SOCKET_PATH: z.string(),
   NODE_ENV: z.enum(["development", "production", "test"]),
   MAIN_HOST: z.ipv4(),
+  MAX_HOST_PORT: z.int(),
+  MIN_HOST_PORT: z.int(),
 });
 
-export const env = EnvSchema.parse(process.env);
+let { MAX_HOST_PORT, MIN_HOST_PORT, ...reEnv } = process.env;
+
+export const env = EnvSchema.parse({
+  MAX_HOST_PORT: parseInt(MAX_HOST_PORT),
+  MIN_HOST_PORT: parseInt(MIN_HOST_PORT),
+  ...reEnv,
+});

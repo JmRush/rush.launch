@@ -72,6 +72,7 @@ export const serverTypes = sqliteTable("server_types", {
     .default(sql`(json_array())`),
   lastUpdated: integer("last_updated", { mode: "timestamp" }).notNull(),
   storageSize: integer("storage_size"),
+  cpuShares: integer("cpu_shares").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
@@ -108,8 +109,9 @@ export const serverTypeVolumes = sqliteTable("server_type_volumes", {
 /////////////////////////////////////
 export const servers = sqliteTable("active_servers", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull(), //this will be the container id after container creation is confirmed successful
-  containerId: text("container_id").notNull(),
+  containerId: text("container_id"),
   ip: text("ip").notNull(),
+  tag: text("tag").notNull(),
   name: text("name").notNull(),
   status: text("status").notNull(),
   createdBy: integer("created_by").references(() => users.id),

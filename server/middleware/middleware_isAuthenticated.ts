@@ -16,7 +16,6 @@ export async function middlewareIsAuthenticated(
       process.env.JWT_SECRET as string,
     )) as number;
 
-
     if (!userId) {
       throw new UnauthorizedError("Unauthorized");
     }
@@ -36,12 +35,6 @@ export async function middlewareIsAuthenticated(
     next();
   } catch (error) {
     console.error("Error in middlewareIsAuthenticated:", error);
-    if (error instanceof UnauthorizedError) {
-      throw new UnauthorizedError("Issue verifying user.");
-    } else if (error instanceof ForbiddenError) {
-      throw new ForbiddenError("User does not have access to these resources");
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }

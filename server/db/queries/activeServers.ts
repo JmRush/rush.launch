@@ -1,6 +1,9 @@
 import { servers, serversPorts, serversVolumes } from "../schema";
 import { db } from "..";
 import { eq, and, desc } from "drizzle-orm";
+import { Protocol } from "../../integrations/dockerengine/client";
+import { env } from "../../schema/env.schema";
+import { ServerTypeAndMappings_T } from "@/server/schema/common.schema";
 
 export const getActiveServers = async () => {
   //might cut down on what is actually returned by the query
@@ -30,11 +33,33 @@ export const createActiveServer = async (
     );
 };
 
-//get all ports and volumes of the given container
-export const getActiveServerPorts = async () => {
-  return await db.select().from(serversPorts);
+export const addContainerToDB = async (
+  stm: ServerTypeAndMappings_T,
+  userId: number,
+  tag: string,
+  name: string,
+) => {
+  return await db
+    .insert(servers)
+    .values({
+      serverTypeId: stm.id,
+      tag: tag,
+      name: name,
+      ip: env.MAIN_HOST,
+      status: "pending",
+      containerId: null,
+      createdBy: userId,
+      updatedBy: userId,
+    })
+    .returning();
 };
 
-export const getActiveServerVolumes = async () => {
-  return await db.select().from(serversVolumes);
+//get all ports and volumes of the given container
+export const getPortsMatch = async (port: number, proto: Protocol) => {
+  return await db
+    .select()
+    .from(serversPorts)
+    .where(
+      and(eq(serversPorts.host_port, port), eq(serversPorts.protocol, proto)),
+    );
 };

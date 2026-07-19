@@ -3,8 +3,6 @@
 ![ci status svg](https://github.com/JmRush/rush.launch/actions/workflows/ci.yml/badge.svg)
 ![cd status svg](https://github.com/JmRush/rush.launch/actions/workflows/cd.yml/badge.svg)
 
-## Ai prodcued this documentation, the application was created by me.
-
 Next.js + Bun + TypeScript + SQLite scaffold with recommended file structure.
 
 ## Tech Stack

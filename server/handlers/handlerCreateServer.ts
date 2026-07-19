@@ -13,6 +13,8 @@ import { db } from "../db";
 import { servers } from "../db/schema";
 import { getBearerToken, validateJWT } from "../auth/auth";
 import { env } from "../schema/env.schema";
+import { ServerTypeAndMappings } from "../schema/common.schema";
+import { eq} from "drizzle-orm";
 
 export const handlerCreateServer = async (req: Request, res: Response) => {
   try {
@@ -62,52 +64,30 @@ export const handlerCreateServer = async (req: Request, res: Response) => {
       );
     }
 
-    //container creations requires the template server,
-    //generated AVAIL ports,
-    //generated volume locations unique per container,
-    //even servername can be generated
+    const parsedTypeAndMappings = ServerTypeAndMappings.parse(
+      serverTypeAndMappings,
+    );
+    const { container, ports, volumes, containerId } = await createContainer(
+      parsedTypeAndMappings,
+      userId,
+      serverTypeTag,
+    );
 
-    const containerId = await createContainer(serverTypeAndMappings);
     if (!containerId) {
       throw new InternalServerError("Issue creating the container");
     }
 
-    let serverObj = {
-      containerId: contianerId,
-      ip: env.MAIN_HOST,
-      name: "bleh",
-      status: "pending",
-      createdBy: userId,
-      updatedBy: userId,
-      serverTypeId: serverTypeAndMappings.id,
-    };
-
-    db.transaction((tx) => {
-      //insert server information, return serverId
-      const server = tx.insert(servers).values(serverObj);
-
-      //insert port/volume information with serverId information
-      return server;
+    await db.transaction((tx) => {
+      await tx.insert(serverPorts).values(ports);
+      await tx.insert(serverVolumes).values(volumes);
+      await tx.update(servers)
+        .set({ containerId: containerId, status: "Launching..." })
+        .where(eq(servers.id, container.id));
     });
+
+    res.status(200).json({});
   } catch (error) {
     console.error("Issue getting server type in handlerCreateServer");
     throw new Error((error as Error).message);
   }
 
-  //which will be from our db request to ensure no issues could be had;
-
-  //Logistical Issues:
-  //  Create container
-  //    User drop down for container versions (which means versions will be important)
-  //
-  //
-  //  Deploy container:
-  //    We need to check which ports are open/in use
-  //    We need to verify the user doesn't already have an active_server of this type
-  //
-
-  //otherwise we verify server data by finding a match and using that data from the DB;
-
-  //pass server creation data to worker
-  //worker handles connection to Docker engine API, creation of server, and finally a response or retries for server creation
-};

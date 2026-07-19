@@ -12,6 +12,7 @@ export const ServerTypeSchema = z.object({
   storageSize: z.number() || z.null(),
   createdAt: z.iso.date(),
   updatedAt: z.iso.date(),
+  cpuShares: z.int(),
 });
 
 export const CreateServerTypeSchema = ServerTypeSchema.omit({
